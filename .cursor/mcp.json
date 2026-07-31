@@ -1,0 +1,27 @@
+{
+  "mcpServers": {
+    "ado": {
+      "command": "C:\\Program Files\\nodejs\\npx.cmd",
+      "args": ["-y", "@azure-devops/mcp", "mercyhealthcare"]
+    },
+    "lucid": {
+      "url": "https://mcp.lucid.app/mcp"
+    },
+    "microsoft-learn": {
+      "url": "https://learn.microsoft.com/api/mcp"
+    },
+    "bicep": {
+      "command": "C:\\Program Files\\dotnet\\dnx.cmd",
+      "args": ["-y", "Azure.Bicep.McpServer"]
+    },
+    "Azure MCP Server": {
+      "command": "C:\\Program Files\\nodejs\\npx.cmd",
+      "args": [
+        "-y",
+        "@azure/mcp@latest",
+        "server",
+        "start"
+      ]
+    }
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "type": "ActualCost",
+  "timeframe": "Custom",
+  "dataset": {
+    "grouping": [
+      {
+        "name": "Product",
+        "type": "Dimension"
+      },
+      {
+        "name": "MeterSubCategory",
+        "type": "Dimension"
+      }
+    ],
+    "aggregation": {
+      "totalQuantity": {
+        "name": "UsageQuantity",
+        "function": "Sum"
+      },
+      "totalCost": {
+        "name": "Cost",
+        "function": "Sum"
+      }
+    },
+    "granularity": "None",
+    "filter": {
+      "dimensions": {
+        "operator": "In",
+        "values": [
+          "Microsoft Fabric"
+        ],
+        "name": "ServiceName"
+      }
+    }
+  },
+  "timePeriod": {
+    "to": "2026-06-30T23:59:59Z",
+    "from": "2026-06-01T00:00:00Z"
+  }
+}
