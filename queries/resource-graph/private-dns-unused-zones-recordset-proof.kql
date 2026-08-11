@@ -1,0 +1,86 @@
+// =============================================================================
+// Purpose:   Stage 1b corroboration for the unused private DNS zone cleanup.
+//            Proves, at record-TYPE level, that a candidate zone holds nothing
+//            but the auto-created SOA record set - rather than trusting the
+//            numberOfRecordSets counter on the zone object alone.
+//
+// Scope:     Tenant-wide, bounded by the caller's RBAC (see AGENTS.md §15).
+// Provider:  'resources'    -> microsoft.network/privatednszones
+//            'dnsresources' -> microsoft.network/privatednszones/{a|aaaa|cname|
+//                              mx|ptr|soa|srv|txt}
+// Required:  Reader on each in-scope subscription.
+// Output:    One row per unlinked zone, with the observed record-set types and a
+//            'qualifies' flag. qualifies == true means both stated conditions are
+//            met on ARG evidence. It is still snapshot data - Stage 2 re-verifies
+//            against the control plane before anything is approved for deletion.
+//
+// Why 'dnsresources': the standard 'resources' table does not index private DNS
+//            record sets. The dedicated 'dnsresources' table does, and it covers
+//            private zones only (public DNS zones are not returned).
+//
+// Join key:  (subscriptionId, resourceGroup, zoneName). A private DNS zone name is
+//            unique within a resource group, so this triple identifies a zone
+//            exactly. Do NOT join on zone name alone - in a hub/spoke landing zone
+//            the same privatelink.* zone name commonly exists in many
+//            subscriptions, and a name-only join would cross-contaminate results.
+//
+// Quirk:     In 'dnsresources', the 'managedBy' column carries the PARENT ZONE
+//            NAME. This differs from 'managedBy' in the 'resources' table, where
+//            it means "resource managing this resource".
+//
+// Note:      If 'dnsresources' does not emit a row for the SOA record set, a
+//            pristine zone returns observedRecordSets = 0. The qualifies logic is
+//            correct either way, because it keys off nonDefaultRecords.
+// =============================================================================
+
+resources
+| where type =~ 'microsoft.network/privatednszones'
+| extend
+    vnetLinks  = toint(properties.numberOfVirtualNetworkLinks),
+    recordSets = toint(properties.numberOfRecordSets)
+| where isnotnull(vnetLinks) and isnotnull(recordSets)
+// Condition 1 - not associated with any virtual network.
+| where vnetLinks == 0
+| project
+    zoneId = id, zoneName = name, subscriptionId, resourceGroup,
+    vnetLinks, recordSets, tags
+// Explicit case normalisation on every join key (AGENTS.md §15).
+| extend joinSub = tolower(subscriptionId), joinRg = tolower(resourceGroup), joinZone = tolower(zoneName)
+| join kind=leftouter (
+    dnsresources
+    | where type startswith 'microsoft.network/privatednszones/'
+    | where type !endswith '/virtualnetworklinks'
+    // type is always 'microsoft.network/privatednszones/<recordtype>' -> index [2].
+    // Fixed index is used deliberately; KQL does not support negative array indexing.
+    | extend recordType = tolower(tostring(split(type, '/')[2]))
+    | extend joinSub = tolower(subscriptionId), joinRg = tolower(resourceGroup), joinZone = tolower(tostring(managedBy))
+    // 'soa' and 'ns' are both treated as auto-created apex defaults. Including
+    // 'ns' costs nothing if private zones never have one, and prevents a false
+    // disqualification if they do - Microsoft's docs conflict on this point.
+    | summarize
+        observedRecordSets = count(),
+        observedTypes      = make_set(recordType),
+        defaultRecords     = countif(recordType in ('soa', 'ns')),
+        nonDefaultRecords  = countif(recordType !in ('soa', 'ns')),
+        aRecords           = countif(recordType == 'a'),
+        aaaaRecords        = countif(recordType == 'aaaa')
+      by joinSub, joinRg, joinZone
+  ) on joinSub, joinRg, joinZone
+| extend
+    observedRecordSets = coalesce(observedRecordSets, 0),
+    defaultRecords     = coalesce(defaultRecords, 0),
+    nonDefaultRecords  = coalesce(nonDefaultRecords, 0),
+    aRecords           = coalesce(aRecords, 0),
+    aaaaRecords        = coalesce(aaaaRecords, 0),
+    observedTypes      = coalesce(observedTypes, dynamic([]))
+// Condition 2 - strict reading: the only record set(s) may be the auto-created
+// apex default(s). Keyed off the record TYPE, deliberately NOT off the
+// numberOfRecordSets counter, so the result is correct whether a pristine zone
+// baselines at 1 (SOA) or 2 (SOA + NS).
+| extend qualifies = (vnetLinks == 0 and nonDefaultRecords == 0)
+| project
+    zoneName, subscriptionId, resourceGroup,
+    vnetLinks, recordSets, observedRecordSets, observedTypes,
+    defaultRecords, nonDefaultRecords, aRecords, aaaaRecords,
+    qualifies, zoneId
+| order by qualifies desc, subscriptionId asc, resourceGroup asc, zoneName asc
