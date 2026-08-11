@@ -1,6 +1,6 @@
 # azure-architect-workspace
 
-A daily working repository for **Azure architecture, engineering, operations, governance, and troubleshooting** — driven mainly through natural language in Cursor IDE / Cursor CLI on Windows, backed by MCP servers for Azure, Azure DevOps, Microsoft Learn, Bicep, and Lucid.
+A daily working repository for **Azure architecture, engineering, operations, governance, and troubleshooting** — driven mainly through natural language in Cursor IDE / Cursor CLI or Claude Code on Windows, backed by MCP servers for Azure, Azure DevOps, Microsoft Learn, Bicep, and Lucid.
 
 This is **not** an application repository and **not** an IaC deployment repository. It holds the operating contract for AI agents, the MCP configuration they use, and the durable artifacts they produce: assessments, audit exports, architecture diagrams, and session history. It is also **not** an autonomous production operator — agents investigate broadly and prepare changes, but do not mutate cloud or delivery systems without the authorization gates in [AGENTS.md](AGENTS.md).
 
@@ -44,7 +44,7 @@ This is **not** an application repository and **not** an IaC deployment reposito
 | Requirement | Used for |
 |---|---|
 | Windows + PowerShell 7 | Primary shell; the workspace is Windows-first |
-| [Cursor](https://cursor.com) (IDE or CLI) | Primary interaction surface |
+| [Cursor](https://cursor.com) (IDE or CLI) or [Claude Code](https://claude.com/claude-code) | Interaction surface; each reads its own MCP config |
 | Node.js (with `npx`) | Azure MCP Server and Azure DevOps MCP |
 | .NET SDK (with `dnx`) | Bicep MCP Server |
 | [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli) | Sign-in, read-only discovery, and the credentials Azure MCP reuses |
@@ -61,32 +61,50 @@ az account list --output table
 az account set --subscription "<subscription-id-or-name>"
 ```
 
-**2. Load the MCP servers.** [.cursor/mcp.json](.cursor/mcp.json) is already committed. In Cursor, open **Settings → Tools & MCP** and reload if the servers don't appear.
+**2. Load the MCP servers.** Both configs are committed; each client reads its own.
 
-**3. Adjust the config for your machine.** [.cursor/mcp.json](.cursor/mcp.json) is environment-specific and will not work as-is elsewhere:
+| Client | Config | How it loads |
+|---|---|---|
+| Cursor | [.cursor/mcp.json](.cursor/mcp.json) | **Settings → Tools & MCP**; reload if the servers don't appear |
+| Claude Code | [.mcp.json](.mcp.json) | Read at startup. [.claude/settings.json](.claude/settings.json) pre-approves the five servers, so there is no per-session prompt |
+
+Claude Code does **not** read `.cursor/mcp.json`, and a file at `.claude/mcp.json` is ignored — project servers must live in `.mcp.json` at the repo root. Keep the two files in sync when adding or changing a server.
+
+**3. Adjust the config for your machine.** Both files are environment-specific and will not work as-is elsewhere:
 
 - Commands use absolute Windows paths (`C:\Program Files\nodejs\npx.cmd`, `C:\Program Files\dotnet\dnx.cmd`).
 - The Azure DevOps server is pinned to a single organization argument.
+- `lucid` authorizes per client — Cursor and Claude Code each need their own sign-in.
 
 **4. Verify with read-only checks only.** Per [AGENTS.md §26](AGENTS.md#26-first-use-behavior-for-a-new-repository), never use a cloud or Azure DevOps *write* as a connection test.
 
 ## MCP servers
 
-Configured in [.cursor/mcp.json](.cursor/mcp.json):
+The same five servers are defined in both [.cursor/mcp.json](.cursor/mcp.json) and [.mcp.json](.mcp.json):
 
 | Server | Transport | Purpose | Auth |
 |---|---|---|---|
-| `Azure MCP Server` | `npx @azure/mcp` | Azure control plane, Resource Graph, cost, monitoring | Reuses local Azure CLI / developer credentials |
+| `Azure MCP Server` / `azure` | `npx @azure/mcp` | Azure control plane, Resource Graph, cost, monitoring | Reuses local Azure CLI / developer credentials |
 | `ado` | `npx @azure-devops/mcp <org>` | Repos, pipelines, work items, PRs, wikis, test plans | Azure DevOps sign-in for the pinned org |
 | `microsoft-learn` | Remote HTTP | Current official Microsoft documentation | None |
 | `bicep` | `dnx Azure.Bicep.McpServer` | Bicep authoring and resource schema lookup | None |
 | `lucid` | Remote HTTP | Architecture diagram creation and editing | Lucid account |
 
+Two differences between the files, both required:
+
+- **Azure server name** — `Azure MCP Server` in Cursor, `azure` in Claude Code, since spaces are awkward in generated tool names.
+- **Remote servers** — Cursor infers HTTP from a bare `url`; Claude Code needs an explicit `"type": "http"`.
+- **Azure server version** — `.mcp.json` pins `@azure/mcp@2.0.5`; `.cursor/mcp.json` still uses `@latest`. On npm, `latest` currently resolves to a `3.0.0-beta` preview, so `@latest` is not the newest *stable* release. Pin deliberately before moving to 3.x.
+
+If your client already supplies Azure, Microsoft Learn, or Lucid through a desktop extension or an account-level connector, those load *alongside* the repo entries rather than replacing them, and the tools appear twice. Remove the client-level copy to deduplicate.
+
 ## What is in this repository
 
 ```text
 AGENTS.md               # Operating contract for AI agents (read first)
-.cursor/mcp.json        # MCP server configuration
+.cursor/mcp.json        # MCP server configuration (Cursor)
+.mcp.json               # MCP server configuration (Claude Code)
+.claude/settings.json   # Pre-approves the repo MCP servers for Claude Code
 chat-history/           # Durable per-session summaries
 chat-conversation.md    # Message-only export of the 2026-07-20 session
 Output/                 # Generated reports and deliverables

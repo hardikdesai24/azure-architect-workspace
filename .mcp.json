@@ -10,7 +10,7 @@
     },
     "azure": {
       "command": "C:\\Program Files\\nodejs\\npx.cmd",
-      "args": ["-y", "@azure/mcp@latest", "server", "start"]
+      "args": ["-y", "@azure/mcp@2.0.5", "server", "start"]
     },
     "microsoft-learn": {
       "type": "http",
