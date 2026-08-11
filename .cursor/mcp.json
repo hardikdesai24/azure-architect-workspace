@@ -1,7 +1,7 @@
 {
   "mcpServers": {
     "ado": {
-      "command": "C:\\Program Files\\nodejs\\npx.cmd",
+      "command": "npx",
       "args": ["-y", "@azure-devops/mcp", "mercyhealthcare"]
     },
     "lucid": {
@@ -11,11 +11,11 @@
       "url": "https://learn.microsoft.com/api/mcp"
     },
     "bicep": {
-      "command": "C:\\Program Files\\dotnet\\dnx.cmd",
+      "command": "dnx",
       "args": ["-y", "Azure.Bicep.McpServer"]
     },
     "Azure MCP Server": {
-      "command": "C:\\Program Files\\nodejs\\npx.cmd",
+      "command": "npx",
       "args": [
         "-y",
         "@azure/mcp@latest",

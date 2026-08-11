@@ -1,15 +1,15 @@
 {
   "mcpServers": {
     "ado": {
-      "command": "C:\\Program Files\\nodejs\\npx.cmd",
+      "command": "npx",
       "args": ["-y", "@azure-devops/mcp", "mercyhealthcare"]
     },
     "bicep": {
-      "command": "C:\\Program Files\\dotnet\\dnx.cmd",
+      "command": "dnx",
       "args": ["-y", "Azure.Bicep.McpServer"]
     },
     "azure": {
-      "command": "C:\\Program Files\\nodejs\\npx.cmd",
+      "command": "npx",
       "args": ["-y", "@azure/mcp@2.0.5", "server", "start"]
     },
     "microsoft-learn": {

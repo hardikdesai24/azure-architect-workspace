@@ -70,11 +70,17 @@ az account set --subscription "<subscription-id-or-name>"
 
 Claude Code does **not** read `.cursor/mcp.json`, and a file at `.claude/mcp.json` is ignored — project servers must live in `.mcp.json` at the repo root. Keep the two files in sync when adding or changing a server.
 
-**3. Adjust the config for your machine.** Both files are environment-specific and will not work as-is elsewhere:
+**3. Adjust the config for your machine.** Both files resolve `npx` and `dnx` from `PATH` rather than
+hardcoding absolute paths, so they load on Windows, macOS, and Linux. Two things are still
+environment-specific:
 
-- Commands use absolute Windows paths (`C:\Program Files\nodejs\npx.cmd`, `C:\Program Files\dotnet\dnx.cmd`).
 - The Azure DevOps server is pinned to a single organization argument.
 - `lucid` authorizes per client — Cursor and Claude Code each need their own sign-in.
+
+If a stdio server fails to start on Windows with a "command not found" or `ENOENT` error, the
+client could not resolve the `.cmd` shim. Confirm `npx -v` (and `dnx --version` for `bicep`) work in
+a normal terminal; if they do and the server still won't start, fall back to an absolute path for
+that one entry — `C:\Program Files\nodejs\npx.cmd` — rather than reverting the whole file.
 
 **4. Verify with read-only checks only.** Per [AGENTS.md §26](AGENTS.md#26-first-use-behavior-for-a-new-repository), never use a cloud or Azure DevOps *write* as a connection test.
 
