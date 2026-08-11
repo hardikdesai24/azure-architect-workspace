@@ -1,0 +1,9 @@
+{
+  "enabledMcpjsonServers": [
+    "ado",
+    "bicep",
+    "azure",
+    "microsoft-learn",
+    "lucid"
+  ]
+}
