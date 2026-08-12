@@ -121,6 +121,25 @@ When bumping, change both files in the same commit and record the reason.
 
 If your client already supplies Azure, Microsoft Learn, or Lucid through a desktop extension or an account-level connector, those load *alongside* the repo entries rather than replacing them, and the tools appear twice. Remove the client-level copy to deduplicate.
 
+### Running in a headless Linux session
+
+This workspace is Windows-first, but the same configs get loaded by Claude Code on the web, devcontainers, and CI — remote Linux containers that lack what the stdio servers assume. Observed in a Claude Code on the web session on 2026-08-12:
+
+| Server | Result | Cause |
+|---|---|---|
+| `microsoft-learn` | Works | Remote HTTP, no auth |
+| `azure` | Starts, registers all 61 tools; every call returns `401` | No Azure credentials in the container |
+| `ado` | Starts and completes the MCP handshake; tool calls then hang until the client times out | Default `interactive` auth needs a browser and Azure CLI |
+| `bicep` | Never starts | No .NET runtime — `dnx` is not on `PATH` |
+| `lucid` | Unavailable | OAuth is interactive and per client |
+
+Do **not** treat these as config bugs. The committed `.mcp.json` and `.cursor/mcp.json` are correct, and the patches that look obvious — pinning a platform binary such as `@azure/mcp-linux-x64`, or forcing `-a pat` on `ado` — would undo the cross-platform resolution and break the Windows setup. Each is an environment gap, so fix it in the environment:
+
+- **Azure credentials** — the container has no Azure CLI, so Setup step 1 cannot run and there is nothing for Azure MCP to reuse. Supply a service principal through `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, and `AZURE_CLIENT_SECRET`, scoped no higher than Reader per [AGENTS.md §3](AGENTS.md#3-protected-operating-principles). Without them the server still loads its tools, so the failure only appears at call time as `401 ... ChainedTokenCredential failed`.
+- **Azure DevOps** — `@azure-devops/mcp` accepts `-a interactive|azcli|env|envvar|pat`, defaulting to `interactive`. Headless, use `pat` and pass the token as an `ADO_MCP_AUTH_TOKEN` environment secret rather than committing the flag. Note the failure mode is a *hang*, not an error: the server reports itself healthy at startup and only stalls once a tool is called.
+- **Bicep** — needs the .NET SDK present in the image. Otherwise treat Bicep schema lookups as unavailable and fall back to `microsoft-learn` or the `bicepschema` tool on the `azure` server.
+- **Stale `npx` cache** — a partial download in `~/.npm/_npx` makes `azure` fail with `sh: 1: azmcp: not found` and register zero tools, which reads like a broken config but is not. Clear it with `rm -rf ~/.npm/_npx` and relaunch the client.
+
 ## What is in this repository
 
 ```text
