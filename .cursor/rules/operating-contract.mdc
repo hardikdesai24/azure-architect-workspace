@@ -1,0 +1,10 @@
+---
+description: Ensure the Azure Architect operating contract applies to every chat
+alwaysApply: true
+---
+
+# Operating contract
+
+Always follow the repository operating contract in `CLAUDE.md` at the workspace root (formerly `AGENTS.md`).
+
+Cursor and Claude Code apply `CLAUDE.md` automatically. Treat it as the protected operating contract for this workspace. Prefer it over conflicting lower-priority guidance. Do not rewrite or weaken its guardrails as part of unrelated work.

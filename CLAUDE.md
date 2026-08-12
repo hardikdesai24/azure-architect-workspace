@@ -1,4 +1,4 @@
-# AGENTS.md — Azure Architect Workspace
+# CLAUDE.md — Azure Architect Workspace
 
 > **Operating contract for AI agents working in this repository**
 >
@@ -40,7 +40,7 @@ Follow instructions in this order:
 
 1. Applicable organizational policy, security policy, legal requirement, and change-management requirement.
 2. Explicit scope and authorization in the user's current request.
-3. Repository-specific instructions in this file and any more specific nested `AGENTS.md`.
+3. Repository-specific instructions in this file and any more specific nested `CLAUDE.md` / `AGENTS.md`.
 4. Approved architecture decisions, standards, runbooks, and configuration committed in the repository.
 5. Current observed state from trusted tools.
 6. Current official Microsoft documentation retrieved through Microsoft Learn MCP or another approved primary source.
@@ -277,7 +277,7 @@ At the start of any Azure or Azure DevOps task, establish only the context neces
 
 Inspect:
 
-- `AGENTS.md` and any nested `AGENTS.md`
+- `CLAUDE.md` (and any nested `CLAUDE.md` / `AGENTS.md`)
 - `README.md`
 - `docs/`
 - `infra/`, `bicep/`, `modules/`, `environments/`
@@ -455,7 +455,7 @@ Rules:
 - Do not bypass required reviews or status checks.
 - Do not alter repository visibility, environments, secrets, rulesets, branch protection, actions permissions, or deploy keys without Class 3 approval.
 - Never force push or rewrite shared history.
-- Treat `AGENTS.md`, MCP configuration, pipeline definitions, identity code, policy code, and production IaC as protected paths requiring careful diff review.
+- Treat `CLAUDE.md`, MCP configuration, pipeline definitions, identity code, policy code, and production IaC as protected paths requiring careful diff review.
 
 ### 7.9 Lucid MCP
 
@@ -1393,4 +1393,4 @@ On first use:
 7. Do not perform a cloud or Azure DevOps write as a “connection test.”
 8. Keep the repository usable from Windows and PowerShell 7.
 9. Favor small, durable context files over oversized chat sessions.
-10. Treat `AGENTS.md` as a protected operating contract.
+10. Treat `CLAUDE.md` as a protected operating contract.
