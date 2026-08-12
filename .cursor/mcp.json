@@ -4,24 +4,21 @@
       "command": "npx",
       "args": ["-y", "@azure-devops/mcp@2.9.0", "mercyhealthcare"]
     },
-    "lucid": {
-      "url": "https://mcp.lucid.app/mcp"
-    },
-    "microsoft-learn": {
-      "url": "https://learn.microsoft.com/api/mcp"
-    },
     "bicep": {
       "command": "dnx",
       "args": ["-y", "Azure.Bicep.McpServer@0.46.1"]
     },
-    "Azure MCP Server": {
+    "azure": {
       "command": "npx",
-      "args": [
-        "-y",
-        "@azure/mcp@2.0.5",
-        "server",
-        "start"
-      ]
+      "args": ["-y", "@azure/mcp@2.0.5", "server", "start"]
+    },
+    "microsoft-learn": {
+      "type": "http",
+      "url": "https://learn.microsoft.com/api/mcp"
+    },
+    "lucid": {
+      "type": "http",
+      "url": "https://mcp.lucid.app/mcp"
     }
   }
 }
