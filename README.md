@@ -100,7 +100,13 @@ Two differences between the files, both required:
 
 - **Azure server name** — `Azure MCP Server` in Cursor, `azure` in Claude Code, since spaces are awkward in generated tool names.
 - **Remote servers** — Cursor infers HTTP from a bare `url`; Claude Code needs an explicit `"type": "http"`.
-- **Azure server version** — `.mcp.json` pins `@azure/mcp@2.0.5`; `.cursor/mcp.json` still uses `@latest`. On npm, `latest` currently resolves to a `3.0.0-beta` preview, so `@latest` is not the newest *stable* release. Pin deliberately before moving to 3.x.
+
+Everything else is intentionally identical, including the Azure server version. Both files pin
+`@azure/mcp@2.0.5`, which is the newest **stable** release — do not "upgrade" either one to
+`@latest`. On npm the `latest` dist-tag points at the `3.0.0-beta` line (144 versions published,
+every one above 2.0.5 a prerelease), so `@latest` silently moves this workspace onto pre-release
+code and floats onto a different beta on each launch. Moving to 3.x should be a deliberate,
+pinned, both-files change.
 
 If your client already supplies Azure, Microsoft Learn, or Lucid through a desktop extension or an account-level connector, those load *alongside* the repo entries rather than replacing them, and the tools appear twice. Remove the client-level copy to deduplicate.
 
