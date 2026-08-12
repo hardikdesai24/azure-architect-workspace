@@ -1,0 +1,95 @@
+// =============================================================================
+// Purpose:   Stage 1 candidate detection for the unused private DNS zone cleanup.
+//            Returns private DNS zones that have ZERO virtual network links and
+//            no record sets beyond the auto-created SOA record.
+//
+// Scope:     Tenant-wide. Azure Resource Graph only returns resources in
+//            subscriptions the calling identity can read, so coverage is bounded
+//            by RBAC. "No result" does NOT prove "no such zone exists"
+//            (AGENTS.md §15) - reconcile the subscription count before trusting
+//            a tenant-wide sweep.
+//
+// Provider:  Microsoft.Network/privateDnsZones  (ARG 'resources' table)
+// Required:  Reader on each in-scope subscription.
+// Output:    One row per candidate zone. Candidates are NOT delete-approved;
+//            they must pass Stage 2 (authoritative control-plane verification)
+//            and Stage 3 (30-day age gate) first.
+//
+// IMPORTANT: This query does NOT apply the 30-day age filter. The ARG 'resources'
+//            table exposes no creation-time column. Age is applied in Stage 3 via
+//            the ARM resources list API with $expand=createdTime.
+//
+// Counter semantics:
+//   numberOfRecordSets           - includes the auto-created record set(s) at the
+//                                  zone apex ('@'). A pristine private zone reports
+//                                  1 or 2, NOT 0 - see the calibration note below.
+//   numberOfVirtualNetworkLinks  - links in ANY subscription; links are child
+//                                  resources of the zone, so there is no
+//                                  cross-subscription blind spot here.
+//
+// CALIBRATION REQUIRED - baseline record-set count:
+//   Microsoft's documentation is self-contradictory on what a brand-new private
+//   zone contains at its apex:
+//     * The supported-record-type list (A, AAAA, CNAME, MX, PTR, SOA, SRV, TXT),
+//       the zone-import guidance ("NS records must be removed prior to import"),
+//       and the ARG dnsresources type list all indicate private zones have NO NS
+//       record set  -> pristine baseline = 1 (SOA only).
+//     * dns-private-records.md states the apex "always contains the NS and SOA
+//       record sets during the creation of the zone" -> baseline = 2. This reads
+//       as boilerplate inherited from the public DNS zone article.
+//   This query therefore uses a DELIBERATELY LOOSE bound of <= 2 so that it cannot
+//   silently miss every qualifying zone if the baseline turns out to be 2. The
+//   loose bound is safe because the count is only a cheap pre-filter: the decisive
+//   test is the record-TYPE check in private-dns-unused-zones-recordset-proof.kql
+//   and in Stage 2 of the discovery script, which requires that NO record set of a
+//   non-default type exists. Nothing is approved for deletion on this count alone.
+//
+//   Before trusting a sweep, calibrate once against a zone known to be empty:
+//     az network private-dns record-set list -g <rg> -z <zone> --query "[].type"
+//   Record the observed baseline in the change plan.
+//
+// Null handling: zones whose counters are null are excluded by the isnotnull()
+//            guard rather than silently treated as zero. They surface in the
+//            companion "counter anomaly" query below for manual review.
+// =============================================================================
+
+resources
+| where type =~ 'microsoft.network/privatednszones'
+| extend
+    vnetLinks        = toint(properties.numberOfVirtualNetworkLinks),
+    regLinks         = toint(properties.numberOfVirtualNetworkLinksWithRegistration),
+    recordSets       = toint(properties.numberOfRecordSets),
+    provisioningState = tostring(properties.provisioningState)
+// Fail safe: never treat an absent counter as "empty".
+| where isnotnull(vnetLinks) and isnotnull(recordSets)
+// Condition 1 - not associated with any virtual network.
+| where vnetLinks == 0
+// Condition 2 (pre-filter only) - no record sets beyond the auto-created apex
+//               default(s). Loose bound of 2 per the calibration note above;
+//               the authoritative test is the record-TYPE check, not this count.
+| where recordSets <= 2
+| project
+    zoneName       = name,
+    subscriptionId,
+    resourceGroup,
+    vnetLinks,
+    regLinks,
+    recordSets,
+    provisioningState,
+    tags,
+    zoneId         = id
+| order by subscriptionId asc, resourceGroup asc, zoneName asc
+
+
+// =============================================================================
+// COMPANION QUERY - counter anomalies (run separately, review manually)
+// Zones whose link/record counters are null or negative. These are excluded from
+// the candidate list by design and must never be deleted on ARG evidence alone.
+// =============================================================================
+//
+// resources
+// | where type =~ 'microsoft.network/privatednszones'
+// | extend vnetLinks  = toint(properties.numberOfVirtualNetworkLinks),
+//          recordSets = toint(properties.numberOfRecordSets)
+// | where isnull(vnetLinks) or isnull(recordSets) or vnetLinks < 0 or recordSets < 0
+// | project name, subscriptionId, resourceGroup, vnetLinks, recordSets, id

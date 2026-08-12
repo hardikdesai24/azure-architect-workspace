@@ -70,11 +70,17 @@ az account set --subscription "<subscription-id-or-name>"
 
 Claude Code does **not** read `.cursor/mcp.json`, and a file at `.claude/mcp.json` is ignored — project servers must live in `.mcp.json` at the repo root. Keep the two files in sync when adding or changing a server.
 
-**3. Adjust the config for your machine.** Both files are environment-specific and will not work as-is elsewhere:
+**3. Adjust the config for your machine.** Both files resolve `npx` and `dnx` from `PATH` rather than
+hardcoding absolute paths, so they load on Windows, macOS, and Linux. Two things are still
+environment-specific:
 
-- Commands use absolute Windows paths (`C:\Program Files\nodejs\npx.cmd`, `C:\Program Files\dotnet\dnx.cmd`).
 - The Azure DevOps server is pinned to a single organization argument.
 - `lucid` authorizes per client — Cursor and Claude Code each need their own sign-in.
+
+If a stdio server fails to start on Windows with a "command not found" or `ENOENT` error, the
+client could not resolve the `.cmd` shim. Confirm `npx -v` (and `dnx --version` for `bicep`) work in
+a normal terminal; if they do and the server still won't start, fall back to an absolute path for
+that one entry — `C:\Program Files\nodejs\npx.cmd` — rather than reverting the whole file.
 
 **4. Verify with read-only checks only.** Per [AGENTS.md §26](AGENTS.md#26-first-use-behavior-for-a-new-repository), never use a cloud or Azure DevOps *write* as a connection test.
 
@@ -94,7 +100,24 @@ Two differences between the files, both required:
 
 - **Azure server name** — `Azure MCP Server` in Cursor, `azure` in Claude Code, since spaces are awkward in generated tool names.
 - **Remote servers** — Cursor infers HTTP from a bare `url`; Claude Code needs an explicit `"type": "http"`.
-- **Azure server version** — `.mcp.json` pins `@azure/mcp@2.0.5`; `.cursor/mcp.json` still uses `@latest`. On npm, `latest` currently resolves to a `3.0.0-beta` preview, so `@latest` is not the newest *stable* release. Pin deliberately before moving to 3.x.
+
+Everything else is intentionally identical, including the versions. All three stdio servers are
+pinned to an exact version in **both** files, so Cursor and Claude Code run identical tooling and a
+given commit reproduces the same toolchain:
+
+| Server | Pin | Registry | Why this version |
+|---|---|---|---|
+| `azure` / `Azure MCP Server` | `@azure/mcp@2.0.5` | npm | Newest **stable**. `latest` points at the `3.0.0-beta` line, so `@latest` is *not* an upgrade — see below |
+| `ado` | `@azure-devops/mcp@2.9.0` | npm | Newest stable; here `latest` and newest stable agree |
+| `bicep` | `Azure.Bicep.McpServer@0.46.1` | NuGet | Newest release; this package publishes no prereleases |
+
+Do not replace a pin with `@latest` or drop it. For `@azure/mcp` specifically, the npm `latest`
+dist-tag resolves to a `3.0.0-beta` prerelease — of 144 published versions, every one above 2.0.5
+is part of the unreleased 3.x line — so `@latest` silently moves this workspace onto pre-release
+code *and* floats onto a different beta on each launch. Version syntax is `package@version` for
+both `npx` and `dnx` (`dnx` follows `dotnet tool exec <PACKAGE_NAME>[@<VERSION>]`).
+
+When bumping, change both files in the same commit and record the reason.
 
 If your client already supplies Azure, Microsoft Learn, or Lucid through a desktop extension or an account-level connector, those load *alongside* the repo entries rather than replacing them, and the tools appear twice. Remove the client-level copy to deduplicate.
 
