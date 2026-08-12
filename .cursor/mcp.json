@@ -2,7 +2,7 @@
   "mcpServers": {
     "ado": {
       "command": "npx",
-      "args": ["-y", "@azure-devops/mcp", "mercyhealthcare"]
+      "args": ["-y", "@azure-devops/mcp@2.9.0", "mercyhealthcare"]
     },
     "lucid": {
       "url": "https://mcp.lucid.app/mcp"
@@ -12,7 +12,7 @@
     },
     "bicep": {
       "command": "dnx",
-      "args": ["-y", "Azure.Bicep.McpServer"]
+      "args": ["-y", "Azure.Bicep.McpServer@0.46.1"]
     },
     "Azure MCP Server": {
       "command": "npx",
