@@ -56,6 +56,13 @@
                 Reader on every in-scope subscription.
     Exit codes: 0 eligible zones found | 2 none found | 3 context/auth failure
                 | 4 completed with coverage or verification warnings
+
+    Windows / PowerShell pitfalls this script must keep handling:
+      1. ConvertFrom-Json of '[]' piped or returned from a function becomes $null
+         (empty-array unrolling). Every unused zone has 0 VNet links, so Stage 2
+         link list returns []. Treat that as an empty array, not a failed call.
+      2. az.cmd splits unquoted --url values on '&'. Stage 3 ARM URLs contain
+         &$expand and &$filter; wrap those URLs in quotes before invoking az.
 #>
 [CmdletBinding()]
 param(
@@ -83,6 +90,7 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
 $script:Warnings = [System.Collections.Generic.List[string]]::new()
+$script:LastAzError = ''
 
 function Write-Phase {
     param([string] $Message)
@@ -95,6 +103,46 @@ function Add-CoverageWarning {
     Write-Warning $Message
 }
 
+# az.cmd on Windows treats '&' in an unquoted --url as a command separator, so
+# ARM query strings like &$expand=...&$filter=... must be wrapped in quotes.
+function Protect-AzCmdUrlArguments {
+    [CmdletBinding()]
+    param([Parameter(Mandatory)][string[]] $Arguments)
+
+    $protected = [System.Collections.Generic.List[string]]::new()
+    for ($i = 0; $i -lt $Arguments.Count; $i++) {
+        $token = $Arguments[$i]
+        $protected.Add($token) | Out-Null
+        if ($token -in @('--url', '--uri') -and ($i + 1) -lt $Arguments.Count) {
+            $i++
+            $url = $Arguments[$i]
+            $alreadyQuoted = $url.StartsWith('"') -and $url.EndsWith('"') -and $url.Length -ge 2
+            if (-not $alreadyQuoted -and $url.Contains('&')) {
+                $url = '"' + $url + '"'
+            }
+            $protected.Add($url) | Out-Null
+        }
+    }
+    return ,$protected.ToArray()
+}
+
+# Converts az --output json text into objects. Empty and single-element JSON
+# arrays must remain arrays; PowerShell otherwise unrolls them to $null / a scalar.
+function ConvertFrom-AzCliJson {
+    [CmdletBinding()]
+    param($Raw)
+
+    if ($null -eq $Raw) { return $null }
+    $text = if ($Raw -is [System.Array]) { $Raw -join "`n" } else { [string]$Raw }
+    if ([string]::IsNullOrWhiteSpace($text)) { return $null }
+
+    $parsed = ConvertFrom-Json -InputObject $text -Depth 100 -NoEnumerate
+    if ($parsed -is [array]) {
+        return ,$parsed
+    }
+    return $parsed
+}
+
 # Invokes an az CLI command, captures stderr and the exit code, and returns the
 # parsed JSON payload. Retries on throttling and transient 5xx responses.
 function Invoke-AzJson {
@@ -105,16 +153,21 @@ function Invoke-AzJson {
         [switch] $TolerateFailure
     )
 
+    $azArgs = Protect-AzCmdUrlArguments -Arguments $Arguments
+
     for ($attempt = 1; $attempt -le $MaxAttempts; $attempt++) {
         $stdErrFile = [System.IO.Path]::GetTempFileName()
         try {
-            $raw = & az @Arguments --only-show-errors --output json 2>$stdErrFile
+            $raw = & az @azArgs --only-show-errors --output json 2>$stdErrFile
             $exitCode = $LASTEXITCODE
             $stdErr = (Get-Content -Path $stdErrFile -Raw -ErrorAction SilentlyContinue) ?? ''
 
             if ($exitCode -eq 0) {
-                if ([string]::IsNullOrWhiteSpace($raw)) { return $null }
-                return ($raw | ConvertFrom-Json -Depth 100)
+                $script:LastAzError = ''
+                $parsed = ConvertFrom-AzCliJson -Raw $raw
+                if ($null -eq $parsed) { return $null }
+                if ($parsed -is [array]) { return ,$parsed }
+                return $parsed
             }
 
             $isTransient = $stdErr -match '(?i)throttl|429|timeout|temporarily|50[0-4]|connection reset'
@@ -125,11 +178,12 @@ function Invoke-AzJson {
                 continue
             }
 
+            $script:LastAzError = $stdErr.Trim()
             if ($TolerateFailure) {
-                Write-Verbose "az failed (exit $exitCode): $($stdErr.Trim())"
+                Write-Verbose "az failed (exit $exitCode): $($script:LastAzError)"
                 return $null
             }
-            throw "az $($Arguments -join ' ') failed with exit code ${exitCode}: $($stdErr.Trim())"
+            throw "az $($Arguments -join ' ') failed with exit code ${exitCode}: $($script:LastAzError)"
         }
         finally {
             Remove-Item -Path $stdErrFile -Force -ErrorAction SilentlyContinue
@@ -310,7 +364,11 @@ foreach ($zone in $candidates) {
             '--zone-name', $zone.zoneName)
 
         if ($null -eq $links -or $null -eq $records) {
-            $verificationError = 'Control-plane verification failed or access denied.'
+            $verificationError = if ($script:LastAzError) {
+                "Control-plane verification failed: $($script:LastAzError)"
+            } else {
+                'Control-plane verification failed (az returned no JSON).'
+            }
             Add-CoverageWarning ("Verification failed for zone '{0}' in {1}. Marked ineligible." -f $zone.zoneName, $zone.subscriptionId)
         }
         else {
