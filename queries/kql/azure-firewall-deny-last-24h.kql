@@ -1,0 +1,43 @@
+// Purpose:  Azure Firewall DENY events for the last 24 hours (all rule types).
+// Scope:    Log Analytics workspace `mercyhealth-log-analytics`
+//           (/subscriptions/96a01662-0cde-4fd8-a7a6-e9944a3afd78/resourceGroups/rg-logging-36hqqavhuaga6)
+//           Fed by firewall `mercyhealth-azfw-northcentralus` (rg-vwan-v3nysoeym4kga,
+//           sub dt-prd-connectivity) via diagnostic setting `diag-firewall-log-analytics`.
+// Tables:   Resource-specific (Dedicated) tables. Verified 2026-08-18: AZFWNetworkRule and
+//           AZFWApplicationRule carry data; AZFWNatRule and AZFWThreatIntel resolve as tables but
+//           hold 0 rows all-time (no DNAT rules hit, no threat-intel matches recorded). Policy
+//           threatIntelMode = Alert, so a threat-intel match would log Action == "Alert", never
+//           "Deny" - this deny-only query would not surface one. Query AZFWThreatIntel directly
+//           without the Action filter if that is what you are looking for.
+//           The legacy AzureDiagnostics categories are DISABLED on this firewall - do not use them.
+// Output:   One row per denied connection/request, newest first.
+// Notes:    - `isfuzzy=true` keeps the union working if a table has never received data.
+//           - AZFWApplicationRule has no DestinationIp; AZFWNetworkRule has no Fqdn/WebCategory.
+//           - Empty Policy/Rule fields on a deny mean no rule matched (default deny).
+// Run:      az monitor log-analytics query -w <workspaceCustomerId> --analytics-query "<this file>" -o json
+//           (On Windows run this from bash, not PowerShell: az.cmd mangles multi-line arguments
+//            and silently drops filters.)
+
+union isfuzzy=true withsource=LogTable
+    AZFWNetworkRule, AZFWApplicationRule, AZFWNatRule, AZFWThreatIntel
+| where TimeGenerated >= ago(24h)
+| where Action == "Deny"
+| project
+    TimeGenerated,
+    LogTable,
+    Action,
+    ActionReason,
+    Protocol,
+    SourceIp,
+    SourcePort,
+    DestinationIp,
+    DestinationPort,
+    Fqdn,
+    TargetUrl,
+    WebCategory,
+    Policy,
+    RuleCollectionGroup,
+    RuleCollection,
+    Rule,
+    FirewallResourceId = _ResourceId
+| order by TimeGenerated desc

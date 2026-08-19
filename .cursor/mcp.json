@@ -5,8 +5,7 @@
       "args": ["-y", "@azure-devops/mcp@2.9.0", "mercyhealthcare"]
     },
     "bicep": {
-      "command": "dnx",
-      "args": ["-y", "Azure.Bicep.McpServer@0.46.1"]
+      "command": "Azure.Bicep.McpServer"
     },
     "azure": {
       "command": "npx",

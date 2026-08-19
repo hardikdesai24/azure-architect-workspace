@@ -1,0 +1,25 @@
+[mcp_servers.ado]
+command = "npx"
+args = [
+    "-y",
+    "@azure-devops/mcp@2.9.0",
+    "mercyhealthcare",
+]
+
+[mcp_servers.azure]
+command = "npx"
+args = [
+    "-y",
+    "@azure/mcp@2.0.5",
+    "server",
+    "start",
+]
+
+[mcp_servers.bicep]
+command = "Azure.Bicep.McpServer"
+
+[mcp_servers.lucid]
+url = "https://mcp.lucid.app/mcp"
+
+[mcp_servers.microsoft-learn]
+url = "https://learn.microsoft.com/api/mcp"
