@@ -1,0 +1,98 @@
+// =============================================================================
+// Purpose:   Stage 1 candidate detection for the Node.js 22 App Service
+//            inventory. Returns Web Apps and deployment slots whose *configured*
+//            runtime indicates Node.js 22 LTS (Microsoft advisory tracking id
+//            9Z2G-WGG; Node 22 support ends 30 April 2027).
+//
+// Scope:     Tenant-wide. Azure Resource Graph only returns resources in
+//            subscriptions the calling identity can read, so coverage is bounded
+//            by RBAC. "No result" does NOT prove "no Node 22 app exists"
+//            (CLAUDE.md §15) - reconcile the subscription count before trusting
+//            a tenant-wide sweep.
+//
+// Provider:  Microsoft.Web/sites and Microsoft.Web/sites/slots
+//            (ARG 'resources' table)
+// Required:  Reader on each in-scope subscription.
+// Output:    One row per candidate app or slot. Candidates are NOT a live
+//            `node -v` result; Stage 2 of Get-AppServiceNode22Inventory.ps1
+//            re-reads linuxFxVersion / WEBSITE_NODE_DEFAULT_VERSION from the
+//            App Service control plane. Windows app settings are frequently
+//            absent from ARG snapshots, so the script also sweeps Windows apps
+//            via `az webapp config appsettings list`.
+//
+// Detection:
+//   Linux   properties.siteConfig.linuxFxVersion  contains NODE|22
+//   Windows properties.siteConfig.nodeVersion     starts with ~22 / 22
+//           properties.siteConfig.windowsFxVersion contains NODE|22
+//           app setting WEBSITE_NODE_DEFAULT_VERSION extracted from siteConfig
+//
+// Custom Docker (DOCKER| / COMPOSE|) is intentionally excluded here; those
+// apps are flagged as Container during the script's all-sites pass.
+//
+// NOTE: Azure Resource Graph does not accept Kusto `let` statements. Keep this
+//       query as a single pipeline.
+// =============================================================================
+
+resources
+| where type =~ 'microsoft.web/sites' or type =~ 'microsoft.web/sites/slots'
+| extend
+    linuxFxVersion   = tostring(properties.siteConfig.linuxFxVersion),
+    windowsFxVersion = tostring(properties.siteConfig.windowsFxVersion),
+    nodeVersion      = tostring(properties.siteConfig.nodeVersion),
+    siteState        = tostring(properties.state),
+    defaultHostName  = tostring(properties.defaultHostName),
+    settingsText     = tostring(properties.siteConfig.appSettings)
+| extend nodeAppSetting = extract(@'(?i)WEBSITE_NODE_DEFAULT_VERSION.{0,120}?"value"\s*:\s*"([^"]+)"', 1, settingsText)
+| where linuxFxVersion contains 'NODE|22'
+    or linuxFxVersion contains 'node|22'
+    or windowsFxVersion contains 'NODE|22'
+    or windowsFxVersion contains 'node|22'
+    or nodeVersion startswith '~22'
+    or nodeVersion startswith '22.'
+    or nodeVersion startswith '22-'
+    or nodeVersion == '22'
+    or nodeAppSetting startswith '~22'
+    or nodeAppSetting startswith '22.'
+    or nodeAppSetting startswith '22-'
+    or nodeAppSetting == '22'
+| project
+    name,
+    subscriptionId,
+    resourceGroup,
+    location,
+    kind,
+    siteState,
+    type,
+    linuxFxVersion,
+    windowsFxVersion,
+    nodeVersion,
+    nodeAppSetting,
+    defaultHostName,
+    tags,
+    id
+| order by subscriptionId asc, resourceGroup asc, name asc
+
+
+// =============================================================================
+// COMPANION QUERY - all App Service runtimes (run separately, review manually)
+// Use this when ARG Node 22 coverage looks too small and you need to see every
+// configured linuxFxVersion / nodeVersion in scope. Windows Node is still often
+// only visible via WEBSITE_NODE_DEFAULT_VERSION on the control plane.
+// =============================================================================
+//
+// resources
+// | where type =~ 'microsoft.web/sites' or type =~ 'microsoft.web/sites/slots'
+// | project
+//     name,
+//     subscriptionId,
+//     resourceGroup,
+//     location,
+//     kind,
+//     type,
+//     linuxFxVersion   = tostring(properties.siteConfig.linuxFxVersion),
+//     windowsFxVersion = tostring(properties.siteConfig.windowsFxVersion),
+//     nodeVersion      = tostring(properties.siteConfig.nodeVersion),
+//     state            = tostring(properties.state),
+//     defaultHostName  = tostring(properties.defaultHostName),
+//     id
+// | order by subscriptionId asc, name asc
