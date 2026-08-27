@@ -2,22 +2,21 @@
   "mcpServers": {
     "ado": {
       "command": "npx",
-      "args": ["-y", "@azure-devops/mcp@2.9.0", "mercyhealthcare"]
+      "args": ["-y", "@azure-devops/mcp@2.9.0", "mercyhealthcare", "--authentication", "azcli"]
     },
     "bicep": {
       "command": "Azure.Bicep.McpServer"
     },
     "azure": {
       "command": "npx",
-      "args": ["-y", "@azure/mcp@2.0.5", "server", "start"]
+      "args": ["-y", "@azure/mcp@2.0.5", "server", "start"],
+      "env": {
+        "AZURE_TOKEN_CREDENTIALS": "AzureCliCredential"
+      }
     },
     "microsoft-learn": {
       "type": "http",
       "url": "https://learn.microsoft.com/api/mcp"
-    },
-    "lucid": {
-      "type": "http",
-      "url": "https://mcp.lucid.app/mcp"
     }
   }
 }
