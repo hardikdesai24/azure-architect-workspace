@@ -5,6 +5,6 @@ alwaysApply: true
 
 # Operating contract
 
-Always follow the repository operating contract in `CLAUDE.md` at the workspace root (formerly `AGENTS.md`).
+Always follow the repository operating contract in `AGENTS.md` at the workspace root.
 
-Cursor and Claude Code apply `CLAUDE.md` automatically. Treat it as the protected operating contract for this workspace. Prefer it over conflicting lower-priority guidance. Do not rewrite or weaken its guardrails as part of unrelated work.
+Cursor applies `AGENTS.md` automatically. Treat it as the protected operating contract for this workspace. Prefer it over conflicting lower-priority guidance. Do not rewrite or weaken its guardrails as part of unrelated work.
