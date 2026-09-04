@@ -1,0 +1,701 @@
+<title>Application Development User-Connection Paths</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+
+<style>
+:root{
+  --ground:#F4F7FA; --surface:#FFFFFF; --surface-2:#EDF1F6;
+  --line:#D6DEE8; --line-soft:#E4EAF1;
+  --ink:#0F1822; --ink-2:#38475A; --muted:#64748B;
+
+  --azure:#1C6EA4;      /* edge: DNS / Front Door / WAF */
+  --compute:#0F766E;    /* App Service / Function App / APIM */
+  --data:#5A4FBF;       /* Key Vault / SQL / Storage / Postgres / Event Hub / App Config */
+  --flag:#B04A16; --flag-bg:#FBF0E9; --flag-line:#EAD2C1;
+  --ok:#1F7A4D;
+  --empty:#8A6410;
+
+  --prd:#9B2C3E;
+  --radius:6px;
+  --f-sans:"IBM Plex Sans",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,"Cascadia Mono","Consolas",monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#0C1219; --surface:#131C26; --surface-2:#1A2632;
+    --line:#2A3947; --line-soft:#22303D;
+    --ink:#E6EDF5; --ink-2:#B4C3D3; --muted:#8496A9;
+    --azure:#5DA9DA; --compute:#4FBFAF; --data:#A79AF0;
+    --flag:#EC8B54; --flag-bg:#2A1D14; --flag-line:#4A3524;
+    --ok:#5CC48D; --empty:#D6AC4E;
+    --prd:#EE8195;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0C1219; --surface:#131C26; --surface-2:#1A2632;
+  --line:#2A3947; --line-soft:#22303D;
+  --ink:#E6EDF5; --ink-2:#B4C3D3; --muted:#8496A9;
+  --azure:#5DA9DA; --compute:#4FBFAF; --data:#A79AF0;
+  --flag:#EC8B54; --flag-bg:#2A1D14; --flag-line:#4A3524;
+  --ok:#5CC48D; --empty:#D6AC4E;
+  --prd:#EE8195;
+}
+
+*{box-sizing:border-box;}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--f-sans);
+  font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased;}
+.wrap{max-width:1220px;margin:0 auto;padding:40px 24px 72px;}
+
+.eyebrow{font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--azure);font-weight:600;margin:0 0 10px;}
+h1{font-size:clamp(27px,4vw,38px);line-height:1.12;letter-spacing:-.02em;font-weight:600;
+  margin:0 0 12px;text-wrap:balance;}
+.lede{margin:0;max-width:70ch;color:var(--ink-2);font-size:16px;}
+.meta{margin-top:22px;padding-top:18px;border-top:1px solid var(--line);
+  display:flex;flex-wrap:wrap;gap:10px 34px;font-size:12.5px;color:var(--muted);}
+.meta div{display:flex;gap:8px;align-items:baseline;}
+.meta dt{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;}
+.meta dd{margin:0;color:var(--ink-2);font-weight:500;}
+
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:1px;
+  background:var(--line);border:1px solid var(--line);border-radius:var(--radius);
+  overflow:hidden;margin:34px 0 40px;}
+.stat{background:var(--surface);padding:16px 18px;}
+.stat .n{font-family:var(--f-mono);font-size:26px;font-weight:500;letter-spacing:-.02em;
+  font-variant-numeric:tabular-nums;line-height:1.1;}
+.stat .k{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);
+  margin-top:5px;font-weight:500;}
+.stat .sub{font-size:12px;color:var(--muted);margin-top:3px;}
+.stat.warn .n{color:var(--flag);}
+.stat.good .n{color:var(--ok);}
+.stat.empty .n{color:var(--empty);}
+
+section.sub{margin-bottom:58px;}
+.subhead{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:6px;
+  padding-bottom:14px;border-bottom:2px solid var(--line);}
+.subhead h2{margin:0;font-size:19px;font-weight:600;letter-spacing:-.01em;}
+.subhead .tag{font-family:var(--f-mono);font-size:11.5px;color:var(--muted);}
+.subhead .mgpath{font-size:11.5px;color:var(--muted);margin-left:auto;}
+.note{margin:14px 0 18px;color:var(--muted);font-size:13.5px;max-width:82ch;}
+
+figure{margin:0;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  padding:22px 22px 18px;overflow-x:auto;}
+figure svg{display:block;height:auto;max-width:none;}
+figcaption{margin-top:16px;padding-top:14px;border-top:1px solid var(--line-soft);
+  font-size:13px;color:var(--muted);max-width:none;}
+figcaption p{margin:0 0 8px;}
+figcaption p:last-child{margin-bottom:0;}
+
+.flowkey{display:flex;flex-wrap:wrap;gap:8px 22px;margin:14px 0 0;font-size:12.5px;color:var(--ink-2);}
+.flowkey span{display:inline-flex;align-items:center;gap:8px;}
+.dash{width:26px;height:0;border-top:2.5px solid currentColor;flex:none;}
+.dashed{border-top-style:dashed;}
+.sq{width:11px;height:11px;border-radius:2px;flex:none;}
+
+.tblwrap{overflow-x:auto;margin-top:16px;}
+.tbl{width:100%;border-collapse:collapse;font-size:13px;border:1px solid var(--line);
+  border-radius:var(--radius);overflow:hidden;}
+.tbl th{background:var(--surface-2);text-align:left;padding:9px 12px;font-size:10.5px;
+  letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:600;
+  border-bottom:1px solid var(--line);white-space:nowrap;}
+.tbl td{background:var(--surface);padding:9px 12px;border-bottom:1px solid var(--line-soft);
+  vertical-align:top;color:var(--ink-2);}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl td.mono{font-family:var(--f-mono);font-size:12px;color:var(--ink);white-space:nowrap;}
+
+.findings{display:flex;flex-direction:column;gap:1px;background:var(--line);
+  border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;}
+.finding{background:var(--surface);padding:17px 20px;display:grid;
+  grid-template-columns:84px 1fr;gap:18px;align-items:start;}
+.sev{font-family:var(--f-mono);font-size:10px;font-weight:600;letter-spacing:.1em;
+  text-transform:uppercase;padding:3px 0;color:var(--muted);}
+.sev.high{color:var(--flag);}
+.finding h3{margin:0 0 5px;font-size:14.5px;font-weight:600;letter-spacing:-.005em;}
+.finding p{margin:0;font-size:13.5px;color:var(--ink-2);max-width:76ch;}
+.finding p + p{margin-top:7px;color:var(--muted);font-size:12.5px;}
+code{font-family:var(--f-mono);font-size:.9em;background:var(--surface-2);
+  border:1px solid var(--line-soft);border-radius:3px;padding:.5px 4px;}
+
+footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--line);
+  font-size:12px;color:var(--muted);max-width:84ch;}
+footer p{margin:0 0 7px;}
+
+@media (max-width:640px){
+  .wrap{padding:28px 16px 56px;}
+  .finding{grid-template-columns:1fr;gap:7px;}
+  .subhead{flex-direction:column;align-items:flex-start;}
+  .subhead .mgpath{margin-left:0;}
+}
+</style>
+
+<div class="wrap">
+
+  <header>
+    <p class="eyebrow">Azure Connectivity Canvas · Application Layer</p>
+    <h1>User-connection paths — Application Development, prd</h1>
+    <p class="lede">The three production subscriptions under the <strong>Application Development</strong>
+      management group, traced from public domain name to data store: every Front Door, WAF, API Management,
+      App Service, Static Web App, Function App and data resource an inbound user request actually touches.
+      Each subscription is its own environment — nothing here is shared infrastructure.</p>
+    <dl class="meta">
+      <div><dt>Management group</dt><dd>Landing Zones → Application Development</dd></div>
+      <div><dt>Region</dt><dd>North Central US, all three</dd></div>
+      <div><dt>Observed</dt><dd>2026-09-03 · 15:10 UTC</dd></div>
+      <div><dt>Read as</dt><dd>hdesai@mhemail.org</dd></div>
+    </dl>
+  </header>
+
+  <div class="stats">
+    <div class="stat"><div class="n">3</div><div class="k">Subscriptions</div><div class="sub">Connect, TPA, Microsites</div></div>
+    <div class="stat"><div class="n">2</div><div class="k">Front Doors</div><div class="sub">1 Premium, 1 Standard</div></div>
+    <div class="stat"><div class="n">12</div><div class="k">App Services</div><div class="sub">10 Connect + 2 TPA</div></div>
+    <div class="stat"><div class="n">148</div><div class="k">Resources examined</div><div class="sub">all types, all 3 subs</div></div>
+    <div class="stat warn"><div class="n">2</div><div class="k">Direct-bypass paths</div><div class="sub">TPA only</div></div>
+    <div class="stat empty"><div class="n">0</div><div class="k">Microsites workload</div><div class="sub">env is empty</div></div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SUBSCRIPTION 1 — dt-prd-app / Connect Application             -->
+  <!-- ============================================================ -->
+  <section class="sub" id="connect">
+    <div class="subhead">
+      <h2>dt-prd-app</h2>
+      <span class="tag">Connect Application</span>
+      <span class="mgpath">Landing Zones → Application Development → Connect Application</span>
+    </div>
+    <p class="note">Two public domains front a Front Door Premium profile: the UI domain resolves to a Static
+      Web App, the API domain resolves through API Management, which path-routes to ten independently
+      deployed line-of-business App Services. Each has its own dedicated Key Vault; three feed a shared
+      Event Hub / Storage / Postgres tier.</p>
+
+    <figure>
+      <svg viewBox="0 0 2450 862" role="img" width="2450" height="862"
+           aria-label="Two custom domains reach Front Door afd-dts-global, protected by a WAF policy currently in Detection-only mode. The UI domain routes to a Static Web App. The API domain routes to API Management, which path-routes by API name to ten separate App Services, each with its own Key Vault reached over a private endpoint. The audit-log and notification-service apps also publish to a shared Event Hub namespace, which triggers a dead-letter-processing Function App that writes to shared Storage. A shared Postgres server sits alongside with no confirmed consumer.">
+        <defs>
+          <marker id="c1-edge" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--azure)"></path></marker>
+          <marker id="c1-compute" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--compute)"></path></marker>
+          <marker id="c1-data" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.4" markerHeight="6.4" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--data)"></path></marker>
+        </defs>
+
+        <!-- domain pills -->
+        <rect x="805" y="14" width="330" height="30" rx="15" fill="var(--surface-2)" stroke="var(--azure)"></rect>
+        <text x="970" y="33" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="12.5" fill="currentColor">connect.mercyhealthcare.org</text>
+        <rect x="1290" y="14" width="380" height="30" rx="15" fill="var(--surface-2)" stroke="var(--azure)"></rect>
+        <text x="1480" y="33" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="12.5" fill="currentColor">api.connect.mercyhealthcare.org</text>
+        <line x1="970" y1="44" x2="970" y2="56" stroke="var(--azure)" stroke-width="2" marker-end="url(#c1-edge)"></line>
+        <line x1="1480" y1="44" x2="1480" y2="56" stroke="var(--azure)" stroke-width="2" marker-end="url(#c1-edge)"></line>
+
+        <!-- AFD container -->
+        <rect x="740" y="58" width="900" height="150" rx="9" fill="none" stroke="var(--azure)" stroke-width="1.5" stroke-dasharray="6 4"></rect>
+        <text x="762" y="82" font-family="IBM Plex Sans, sans-serif" font-size="14.5" font-weight="600" fill="currentColor">Front Door — afd-dts-global</text>
+        <text x="762" y="99" font-family="IBM Plex Sans, sans-serif" font-size="11" fill="var(--muted)">(Front Door Profile · Premium)</text>
+
+        <rect x="762" y="110" width="330" height="34" rx="6" fill="var(--surface-2)" stroke="var(--line)"></rect>
+        <text x="927" y="130" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11.5" fill="currentColor">prod-connect-mercyhealthcare</text>
+        <text x="927" y="141" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="8.5" fill="var(--muted)"> </text>
+
+        <rect x="1308" y="110" width="310" height="34" rx="6" fill="var(--surface-2)" stroke="var(--line)"></rect>
+        <text x="1463" y="130" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11.5" fill="currentColor">portal-backend-prod</text>
+
+        <text x="762" y="196" font-family="IBM Plex Sans, sans-serif" font-size="11.5" font-weight="600" fill="var(--flag)">⚠ WAF: WAFGlobalAzureManagedWithGeoRestrictionsAndRateLimiting — Detection mode (not blocking)</text>
+
+        <!-- fan to SWA / APIM -->
+        <line x1="927" y1="208" x2="927" y2="228" stroke="var(--azure)" stroke-width="2" marker-end="url(#c1-edge)"></line>
+        <line x1="1463" y1="208" x2="1463" y2="228" stroke="var(--azure)" stroke-width="2" marker-end="url(#c1-edge)"></line>
+
+        <rect x="757" y="230" width="340" height="76" rx="7" fill="var(--surface)" stroke="var(--compute)" stroke-width="1.5"></rect>
+        <text x="927" y="257" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="13.5" font-weight="600" fill="currentColor">swa-portal-prod-ncus</text>
+        <text x="927" y="274" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="10.5" fill="var(--muted)">(Static Web App · Standard)</text>
+        <text x="927" y="292" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="var(--muted)">no custom domain bound — reached only via AFD</text>
+
+        <rect x="1278" y="230" width="370" height="88" rx="7" fill="var(--surface)" stroke="var(--compute)" stroke-width="1.5"></rect>
+        <text x="1463" y="257" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="13.5" font-weight="600" fill="currentColor">apim-dts-gateway-prod-ncus-1</text>
+        <text x="1463" y="274" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="10.5" fill="var(--muted)">(API Management · Standard)</text>
+        <text x="1463" y="292" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="var(--muted)">public IP 172.214.234.155</text>
+        <text x="1463" y="308" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="9" fill="var(--muted)">no VNet integration</text>
+
+        <!-- bus -->
+        <line x1="1463" y1="318" x2="1463" y2="352" stroke="var(--compute)" stroke-width="2"></line>
+        <line x1="386" y1="352" x2="2274" y2="352" stroke="var(--compute)" stroke-width="2"></line>
+        <text x="1463" y="343" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="10" fill="var(--muted)">path-routes by API name</text>
+
+        <!-- 10 columns: drops + app service + kv -->
+        <!-- col 0: portal x-left=40 center=150 -->
+        <line x1="150" y1="352" x2="150" y2="392" stroke="var(--compute)" stroke-width="2" marker-end="url(#c1-compute)"></line>
+        <text x="150" y="378" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="currentColor">portal</text>
+        <rect x="40" y="394" width="220" height="86" rx="6" fill="var(--surface)" stroke="var(--compute)"></rect>
+        <text x="150" y="418" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="currentColor">app-portal-prod-ncus</text>
+        <text x="150" y="434" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="9" fill="var(--muted)">(App Service · Linux)</text>
+        <text x="150" y="450" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="8.5" fill="var(--muted)">B1 Basic</text>
+        <text x="150" y="467" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="8" fill="var(--muted)">+ inbound private endpoint</text>
+        <line x1="150" y1="480" x2="150" y2="504" stroke="var(--data)" stroke-width="1.8" marker-end="url(#c1-data)"></line>
+        <text x="150" y="497" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="8" fill="var(--muted)">private endpoint</text>
+        <rect x="40" y="506" width="220" height="66" rx="6" fill="var(--surface)" stroke="var(--data)"></rect>
+        <text x="150" y="528" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="currentColor">kv-portal-prod-ncus</text>
+        <text x="150" y="544" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="9" fill="var(--muted)">(Key Vault)</text>
+
+        <!-- col 1: audit-log center=386 -->
+        <line x1="386" y1="352" x2="386" y2="392" stroke="var(--compute)" stroke-width="2" marker-end="url(#c1-compute)"></line>
+        <text x="386" y="378" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="currentColor">audit-log</text>
+        <rect x="276" y="394" width="220" height="86" rx="6" fill="var(--surface)" stroke="var(--compute)"></rect>
+        <text x="386" y="418" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="currentColor">app-audit-log-prod-ncus</text>
+        <text x="386" y="434" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="9" fill="var(--muted)">(App Service · Linux)</text>
+        <text x="386" y="450" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="8.5" fill="var(--muted)">B1 Basic</text>
+        <text x="386" y="467" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="8" fill="var(--muted)">+ inbound private endpoint</text>
+        <line x1="386" y1="480" x2="386" y2="504" stroke="var(--data)" stroke-width="1.8" marker-end="url(#c1-data)"></line>
+        <rect x="276" y="506" width="220" height="66" rx="6" fill="var(--surface)" stroke="var(--data)"></rect>
+        <text x="386" y="528" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="currentColor">kv-audit-log-prod-ncus</text>
+        <text x="386" y="544" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="9" fill="var(--muted)">(Key Vault)</text>
+
+        <!-- col 2: hand-hygiene center=622 -->
+        <line x1="622" y1="352" x2="622" y2="392" stroke="var(--compute)" stroke-width="2" marker-end="url(#c1-compute)"></line>
+        <text x="622" y="378" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="currentColor">hand-hygiene</text>
+        <rect x="512" y="394" width="220" height="86" rx="6" fill="var(--surface)" stroke="var(--compute)"></rect>
+        <text x="622" y="418" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="currentColor">app-hand-hygiene-prod-ncus</text>
+        <text x="622" y="434" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="9" fill="var(--muted)">(App Service · Linux)</text>
+        <text x="622" y="450" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="8.5" fill="var(--muted)">B1 Basic</text>
+        <text x="622" y="467" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="8" fill="var(--muted)">+ inbound private endpoint</text>
+        <line x1="622" y1="480" x2="622" y2="504" stroke="var(--data)" stroke-width="1.8" marker-end="url(#c1-data)"></line>
+        <rect x="512" y="506" width="220" height="66" rx="6" fill="var(--surface)" stroke="var(--data)"></rect>
+        <text x="622" y="528" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="currentColor">kv-hand-hygien-prod-ncus</text>
+        <text x="622" y="544" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="9" fill="var(--muted)">(Key Vault)</text>
+
+        <!-- col 3: hhs center=858 -->
+        <line x1="858" y1="352" x2="858" y2="392" stroke="var(--compute)" stroke-width="2" marker-end="url(#c1-compute)"></line>
+        <text x="858" y="378" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="currentColor">hhs</text>
+        <rect x="748" y="394" width="220" height="86" rx="6" fill="var(--surface)" stroke="var(--compute)"></rect>
+        <text x="858" y="418" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="currentColor">app-HHS-prod-ncus</text>
+        <text x="858" y="434" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="9" fill="var(--muted)">(App Service · Linux)</text>
+        <text x="858" y="450" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="8.5" fill="var(--muted)">B1 Basic</text>
+        <text x="858" y="467" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="8" fill="var(--muted)">+ inbound private endpoint</text>
+        <line x1="858" y1="480" x2="858" y2="504" stroke="var(--data)" stroke-width="1.8" marker-end="url(#c1-data)"></line>
+        <rect x="748" y="506" width="220" height="66" rx="6" fill="var(--surface)" stroke="var(--data)"></rect>
+        <text x="858" y="528" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="currentColor">kv-HHS-prod-ncus</text>
+        <text x="858" y="544" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="9" fill="var(--muted)">(Key Vault)</text>
+
+        <!-- col 4: labor-pool center=1094 -->
+        <line x1="1094" y1="352" x2="1094" y2="392" stroke="var(--compute)" stroke-width="2" marker-end="url(#c1-compute)"></line>
+        <text x="1094" y="378" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="currentColor">labor-pool</text>
+        <rect x="984" y="394" width="220" height="86" rx="6" fill="var(--surface)" stroke="var(--compute)"></rect>
+        <text x="1094" y="418" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="currentColor">app-labor-pool-prod-ncus</text>
+        <text x="1094" y="434" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="9" fill="var(--muted)">(App Service · Linux)</text>
+        <text x="1094" y="450" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="8.5" fill="var(--muted)">B1 Basic</text>
+        <text x="1094" y="467" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="8" fill="var(--muted)">+ inbound private endpoint</text>
+        <line x1="1094" y1="480" x2="1094" y2="504" stroke="var(--data)" stroke-width="1.8" marker-end="url(#c1-data)"></line>
+        <rect x="984" y="506" width="220" height="66" rx="6" fill="var(--surface)" stroke="var(--data)"></rect>
+        <text x="1094" y="528" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="currentColor">kv-labor-pool-prod-ncus</text>
+        <text x="1094" y="544" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="9" fill="var(--muted)">(Key Vault)</text>
+
+        <!-- col 5: legacy-docs center=1330 -->
+        <line x1="1330" y1="352" x2="1330" y2="392" stroke="var(--compute)" stroke-width="2" marker-end="url(#c1-compute)"></line>
+        <text x="1330" y="378" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="currentColor">legacy-docs</text>
+        <rect x="1220" y="394" width="220" height="86" rx="6" fill="var(--surface)" stroke="var(--compute)"></rect>
+        <text x="1330" y="418" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="currentColor">app-legacy-docs-prod-ncus</text>
+        <text x="1330" y="434" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="9" fill="var(--muted)">(App Service · Linux)</text>
+        <text x="1330" y="450" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="8.5" fill="var(--muted)">B1 Basic</text>
+        <text x="1330" y="467" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="8" fill="var(--muted)">+ inbound private endpoint</text>
+        <line x1="1330" y1="480" x2="1330" y2="504" stroke="var(--data)" stroke-width="1.8" marker-end="url(#c1-data)"></line>
+        <rect x="1220" y="506" width="220" height="66" rx="6" fill="var(--surface)" stroke="var(--data)"></rect>
+        <text x="1330" y="528" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="currentColor">kv-legacy-docs-prod-ncus</text>
+        <text x="1330" y="544" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="9" fill="var(--muted)">(Key Vault)</text>
+
+        <!-- col 6: medicaid center=1566 -->
+        <line x1="1566" y1="352" x2="1566" y2="392" stroke="var(--compute)" stroke-width="2" marker-end="url(#c1-compute)"></line>
+        <text x="1566" y="378" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="currentColor">medicaid</text>
+        <rect x="1456" y="394" width="220" height="86" rx="6" fill="var(--surface)" stroke="var(--compute)"></rect>
+        <text x="1566" y="418" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="currentColor">app-medicaid-prod-ncus</text>
+        <text x="1566" y="434" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="9" fill="var(--muted)">(App Service · Linux)</text>
+        <text x="1566" y="450" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="8.5" fill="var(--muted)">B1 Basic</text>
+        <text x="1566" y="467" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="8" fill="var(--muted)">+ inbound private endpoint</text>
+        <line x1="1566" y1="480" x2="1566" y2="504" stroke="var(--data)" stroke-width="1.8" marker-end="url(#c1-data)"></line>
+        <rect x="1456" y="506" width="220" height="66" rx="6" fill="var(--surface)" stroke="var(--data)"></rect>
+        <text x="1566" y="528" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="currentColor">kv-medicaid-prod-ncus</text>
+        <text x="1566" y="544" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="9" fill="var(--muted)">(Key Vault)</text>
+
+        <!-- col 7: notification-service center=1802 -->
+        <line x1="1802" y1="352" x2="1802" y2="392" stroke="var(--compute)" stroke-width="2" marker-end="url(#c1-compute)"></line>
+        <text x="1802" y="378" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="currentColor">notification-service</text>
+        <rect x="1692" y="394" width="220" height="86" rx="6" fill="var(--surface)" stroke="var(--compute)"></rect>
+        <text x="1802" y="418" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="currentColor">app-notification-service</text>
+        <text x="1802" y="431" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="currentColor">-prod-ncus</text>
+        <text x="1802" y="447" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="9" fill="var(--muted)">(App Service · Linux · B1)</text>
+        <text x="1802" y="467" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="8" fill="var(--muted)">+ inbound private endpoint</text>
+        <line x1="1802" y1="480" x2="1802" y2="504" stroke="var(--data)" stroke-width="1.8" marker-end="url(#c1-data)"></line>
+        <rect x="1692" y="506" width="220" height="66" rx="6" fill="var(--surface)" stroke="var(--data)"></rect>
+        <text x="1802" y="524" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="currentColor">kv-notificatio-prod-ncus</text>
+        <text x="1802" y="540" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="9" fill="var(--muted)">(Key Vault)</text>
+
+        <!-- col 8: quality-review (ora) center=2038 -->
+        <line x1="2038" y1="352" x2="2038" y2="392" stroke="var(--compute)" stroke-width="2" marker-end="url(#c1-compute)"></line>
+        <text x="2038" y="378" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="currentColor">quality-review</text>
+        <rect x="1928" y="394" width="220" height="86" rx="6" fill="var(--surface)" stroke="var(--compute)"></rect>
+        <text x="2038" y="418" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="currentColor">app-ora-prod-ncus</text>
+        <text x="2038" y="434" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="9" fill="var(--muted)">(App Service · Linux)</text>
+        <text x="2038" y="450" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="8.5" fill="var(--muted)">B1 Basic</text>
+        <text x="2038" y="467" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="8" fill="var(--muted)">+ inbound private endpoint</text>
+        <line x1="2038" y1="480" x2="2038" y2="504" stroke="var(--data)" stroke-width="1.8" marker-end="url(#c1-data)"></line>
+        <rect x="1928" y="506" width="220" height="66" rx="6" fill="var(--surface)" stroke="var(--data)"></rect>
+        <text x="2038" y="528" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="currentColor">kv-ora-prod-ncus</text>
+        <text x="2038" y="544" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="9" fill="var(--muted)">(Key Vault)</text>
+
+        <!-- col 9: pmm-invoices center=2274 -->
+        <line x1="2274" y1="352" x2="2274" y2="392" stroke="var(--compute)" stroke-width="2" marker-end="url(#c1-compute)"></line>
+        <text x="2274" y="378" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="currentColor">pmm-invoices</text>
+        <rect x="2164" y="394" width="220" height="86" rx="6" fill="var(--surface)" stroke="var(--compute)"></rect>
+        <text x="2274" y="418" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="currentColor">app-PMM-prod-ncus</text>
+        <text x="2274" y="434" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="9" fill="var(--muted)">(App Service · Linux)</text>
+        <text x="2274" y="450" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="8.5" fill="var(--muted)">B1 Basic</text>
+        <text x="2274" y="467" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="8" fill="var(--muted)">+ inbound private endpoint</text>
+        <line x1="2274" y1="480" x2="2274" y2="504" stroke="var(--data)" stroke-width="1.8" marker-end="url(#c1-data)"></line>
+        <rect x="2164" y="506" width="220" height="66" rx="6" fill="var(--surface)" stroke="var(--data)"></rect>
+        <text x="2274" y="528" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="currentColor">kv-PMM-prod-ncus</text>
+        <text x="2274" y="544" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="9" fill="var(--muted)">(Key Vault)</text>
+
+        <!-- shared platform tier -->
+        <text x="40" y="594" font-family="IBM Plex Sans, sans-serif" font-size="11" font-weight="600" fill="var(--muted)" letter-spacing="0.6">SHARED PLATFORM SERVICES — reached asynchronously, not on the live request path above</text>
+
+        <!-- connector: audit-log KV bottom -> down -> left -> EventHub top -->
+        <path d="M 386 572 L 386 622 L 560 622 L 560 656" fill="none" stroke="var(--data)" stroke-width="1.6" stroke-dasharray="6 4" marker-end="url(#c1-data)"></path>
+        <text x="475" y="616" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="8.5" fill="var(--muted)">publishes audit events</text>
+
+        <!-- connector: notification-service KV bottom -> down -> left -> EventHub top -->
+        <path d="M 1802 572 L 1802 636 L 620 636 L 620 656" fill="none" stroke="var(--data)" stroke-width="1.6" stroke-dasharray="6 4" marker-end="url(#c1-data)"></path>
+        <text x="1210" y="630" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="8.5" fill="var(--muted)">publishes notifications</text>
+
+        <rect x="430" y="658" width="260" height="88" rx="7" fill="var(--surface)" stroke="var(--data)" stroke-width="1.5"></rect>
+        <text x="560" y="684" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="currentColor">evhns-dts-shared-prod-ncus</text>
+        <text x="560" y="700" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="9.5" fill="var(--muted)">(Event Hub Namespace · Standard)</text>
+        <text x="560" y="718" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="8.5" fill="var(--muted)">private endpoint</text>
+        <text x="560" y="734" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="8.5" fill="var(--muted)">shared across the app tier</text>
+
+        <line x1="690" y1="702" x2="754" y2="702" stroke="var(--data)" stroke-width="1.6" stroke-dasharray="6 4" marker-end="url(#c1-data)"></line>
+        <text x="722" y="691" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="8.5" fill="var(--muted)">dead-letter trigger</text>
+
+        <rect x="756" y="658" width="260" height="88" rx="7" fill="var(--surface)" stroke="var(--compute)" stroke-width="1.5"></rect>
+        <text x="886" y="684" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="currentColor">func-dlq-processor-internal</text>
+        <text x="886" y="698" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="currentColor">-prod-ncus</text>
+        <text x="886" y="714" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="9.5" fill="var(--muted)">(Function App · Linux, Flex Consumption)</text>
+        <text x="886" y="732" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="8.5" fill="var(--muted)">no public access — VNet + PE only</text>
+
+        <rect x="1082" y="658" width="260" height="88" rx="7" fill="var(--surface)" stroke="var(--data)" stroke-width="1.5" stroke-dasharray="5 4"></rect>
+        <text x="1212" y="684" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="currentColor">blobdtssharedprodncus</text>
+        <text x="1212" y="700" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="9.5" fill="var(--muted)">(Storage Account · StorageV2, LRS)</text>
+        <text x="1212" y="718" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="8.5" fill="var(--muted)">private endpoint (blob)</text>
+        <text x="1212" y="734" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="8" fill="var(--muted)">not written by func-dlq-processor — see note</text>
+
+        <rect x="1408" y="658" width="260" height="88" rx="7" fill="var(--surface)" stroke="var(--data)" stroke-width="1.5" stroke-dasharray="5 4"></rect>
+        <text x="1538" y="684" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="currentColor">pg-dts-shared-prod-ncus</text>
+        <text x="1538" y="700" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="9.5" fill="var(--muted)">(PostgreSQL Flexible Server)</text>
+        <text x="1538" y="718" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="8.5" fill="var(--flag)">no public access · VNet-delegated</text>
+        <text x="1538" y="734" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="8" fill="var(--muted)">consumer not confirmed — dashed border</text>
+
+        <!-- platform KV, not in main path, small annotation box -->
+        <rect x="1734" y="658" width="330" height="60" rx="7" fill="var(--surface)" stroke="var(--line)" stroke-width="1.3" stroke-dasharray="3 3"></rect>
+        <text x="1899" y="681" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--ink-2)">kv-frontdoor-prod-ncus  ·  log-dts-shared-1-prod-ncus</text>
+        <text x="1899" y="698" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="8.5" fill="var(--muted)">(Key Vault, Log Analytics) — platform / observability, not on the request path</text>
+
+      </svg>
+
+      <div class="flowkey">
+        <span style="color:var(--azure)"><i class="dash"></i>Edge · Front Door, custom domains</span>
+        <span style="color:var(--compute)"><i class="dash"></i>Compute · APIM, App Service, Function App</span>
+        <span style="color:var(--data)"><i class="dash dashed"></i>Data · Key Vault, Event Hub, Storage, Postgres (dashed = async / unconfirmed)</span>
+      </div>
+
+      <figcaption>
+        <p><strong>Two independent entry paths share one Front Door.</strong> <code>connect.mercyhealthcare.org</code>
+        routes straight to the Static Web App (the UI bundle); <code>api.connect.mercyhealthcare.org</code> routes
+        to API Management, which is the only thing that ever calls the ten backend App Services — each is locked
+        to APIM's outbound IP (<code>172.214.234.155/32</code>) with a deny-all fallback, so none of them is reachable
+        directly from the internet.</p>
+        <p>Each backend app also carries its own private endpoint (<code>sites</code> subresource) — a private,
+        VNet-only path into the same app, separate from the public APIM route. That's by design, not a leak: it
+        exists for private/on-prem access, and public access is still correctly gated by the IP restriction above.</p>
+        <p>The private-endpoint arrow into each Key Vault is labeled once (<code>portal</code> column); all ten
+        pairs follow the identical pattern. Full canonical names are listed in the table below.</p>
+        <p><strong>Shared-tier confidence varies by edge.</strong> The function's one assigned identity,
+        <code>uai-dlq-processor-prod</code>, holds a role on Event Hub — that trigger edge is RBAC-confirmed.
+        The same identity holds <em>no</em> role on the shared Storage account, so the function is not confirmed
+        to write there (dashed border on the Storage box marks this). Storage's actual confirmed callers are two
+        other identities, <code>uai-blob-shared-prod</code> and <code>uai-evh-audit-logs-dlq-prod</code> — the
+        latter's name suggests <code>audit-log</code> may handle its own dead-lettering independently of the
+        shared function, a detail this review could not fully resolve without reading application code.</p>
+      </figcaption>
+    </figure>
+
+    <div class="tblwrap">
+      <table class="tbl">
+        <thead><tr><th>API path (APIM)</th><th>App Service (Azure resource name)</th><th>Key Vault (Azure resource name)</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">portal</td><td class="mono">app-portal-prod-ncus</td><td class="mono">kv-portal-prod-ncus</td></tr>
+          <tr><td class="mono">audit-log</td><td class="mono">app-audit-log-prod-ncus</td><td class="mono">kv-audit-log-prod-ncus</td></tr>
+          <tr><td class="mono">hand-hygiene</td><td class="mono">app-hand-hygiene-prod-ncus</td><td class="mono">kv-hand-hygien-prod-ncus</td></tr>
+          <tr><td class="mono">hhs</td><td class="mono">app-HHS-prod-ncus</td><td class="mono">kv-HHS-prod-ncus</td></tr>
+          <tr><td class="mono">labor-pool</td><td class="mono">app-labor-pool-prod-ncus</td><td class="mono">kv-labor-pool-prod-ncus</td></tr>
+          <tr><td class="mono">legacy-docs</td><td class="mono">app-legacy-docs-prod-ncus</td><td class="mono">kv-legacy-docs-prod-ncus</td></tr>
+          <tr><td class="mono">medicaid</td><td class="mono">app-medicaid-prod-ncus</td><td class="mono">kv-medicaid-prod-ncus</td></tr>
+          <tr><td class="mono">notification-service</td><td class="mono">app-notification-service-prod-ncus</td><td class="mono">kv-notificatio-prod-ncus</td></tr>
+          <tr><td class="mono">quality-review</td><td class="mono">app-ora-prod-ncus</td><td class="mono">kv-ora-prod-ncus</td></tr>
+          <tr><td class="mono">pmm-invoices</td><td class="mono">app-PMM-prod-ncus</td><td class="mono">kv-PMM-prod-ncus</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- SUBSCRIPTION 2 — dt-prd-tpa / TPA Application                 -->
+  <!-- ============================================================ -->
+  <section class="sub" id="tpa">
+    <div class="subhead">
+      <h2>dt-prd-tpa</h2>
+      <span class="tag">TPA Application</span>
+      <span class="mgpath">Landing Zones → Application Development → TPA Application</span>
+    </div>
+    <p class="note">One domain, one Front Door Standard profile, two App Services split by path. The WAF here
+      is correctly set to Prevention — but both App Services also carry an explicit "allow all" network rule,
+      which means the front door is optional, not mandatory.</p>
+
+    <figure>
+      <svg viewBox="0 0 1200 640" role="img" width="1200" height="640"
+           aria-label="The domain planalytics.mercycarehealthplans.com reaches Front Door az-fd-prod, protected by WAF policy wafprod in Prevention mode. Two routes split by path: the default route goes to a frontend App Service, and slash-api routes to a backend App Service. The backend reaches SQL Database, Key Vault, App Configuration and Storage over private endpoints. A second, unintended path also exists: both App Services accept direct internet traffic on their azurewebsites.net hostname, because an explicit allow-all network rule sits alongside the Front-Door-only rule, bypassing the Front Door and WAF entirely.">
+        <defs>
+          <marker id="c2-edge" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--azure)"></path></marker>
+          <marker id="c2-compute" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--compute)"></path></marker>
+          <marker id="c2-data" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.4" markerHeight="6.4" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--data)"></path></marker>
+          <marker id="c2-flag" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--flag)"></path></marker>
+        </defs>
+
+        <!-- domain pill -->
+        <rect x="380" y="14" width="440" height="30" rx="15" fill="var(--surface-2)" stroke="var(--azure)"></rect>
+        <text x="600" y="33" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="12.5" fill="currentColor">planalytics.mercycarehealthplans.com</text>
+        <line x1="600" y1="44" x2="600" y2="58" stroke="var(--azure)" stroke-width="2" marker-end="url(#c2-edge)"></line>
+
+        <!-- AFD container -->
+        <rect x="360" y="60" width="480" height="118" rx="9" fill="none" stroke="var(--azure)" stroke-width="1.5" stroke-dasharray="6 4"></rect>
+        <text x="382" y="84" font-family="IBM Plex Sans, sans-serif" font-size="14.5" font-weight="600" fill="currentColor">Front Door — az-fd-prod</text>
+        <text x="382" y="101" font-family="IBM Plex Sans, sans-serif" font-size="11" fill="var(--muted)">(Front Door Profile · Standard)</text>
+        <rect x="382" y="112" width="220" height="30" rx="6" fill="var(--surface-2)" stroke="var(--line)"></rect>
+        <text x="492" y="132" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11.5" fill="currentColor">az-ep-prod</text>
+        <text x="382" y="166" font-family="IBM Plex Sans, sans-serif" font-size="11.5" font-weight="600" fill="var(--ok)">✓ WAF: wafprod — Prevention mode (blocking)</text>
+
+        <!-- fan to frontend / backend, path-labeled -->
+        <line x1="440" y1="178" x2="270" y2="228" stroke="var(--azure)" stroke-width="2" marker-end="url(#c2-edge)"></line>
+        <text x="330" y="200" font-family="IBM Plex Mono, monospace" font-size="10" fill="currentColor">/*</text>
+        <line x1="740" y1="178" x2="900" y2="228" stroke="var(--azure)" stroke-width="2" marker-end="url(#c2-edge)"></line>
+        <text x="838" y="200" font-family="IBM Plex Mono, monospace" font-size="10" fill="currentColor">/api/*</text>
+
+        <rect x="120" y="230" width="300" height="80" rx="7" fill="var(--surface)" stroke="var(--compute)" stroke-width="1.5"></rect>
+        <text x="270" y="257" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11.5" fill="currentColor">app-tpa-prod-frontend-ncus</text>
+        <text x="270" y="274" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="10" fill="var(--muted)">(App Service)</text>
+        <text x="270" y="291" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="9" fill="var(--muted)">Plan asp-tpa-prod-ncus · P1v3</text>
+
+        <rect x="750" y="230" width="300" height="80" rx="7" fill="var(--surface)" stroke="var(--compute)" stroke-width="1.5"></rect>
+        <text x="900" y="257" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11.5" fill="currentColor">app-tpa-prod-backend-ncus</text>
+        <text x="900" y="274" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="10" fill="var(--muted)">(App Service)</text>
+        <text x="900" y="291" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="9" fill="var(--muted)">Plan asp-tpa-prod-ncus · P1v3 (shared plan)</text>
+
+        <!-- FINDING: direct public bypass -->
+        <rect x="40" y="60" width="230" height="46" rx="7" fill="var(--flag-bg)" stroke="var(--flag)" stroke-width="1.3"></rect>
+        <text x="155" y="80" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="11" font-weight="600" fill="var(--flag)">Internet</text>
+        <text x="155" y="96" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="8.5" fill="var(--flag)">direct client</text>
+        <path d="M 155 106 L 155 220 L 270 220 L 270 230" fill="none" stroke="var(--flag)" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#c2-flag)"></path>
+        <path d="M 240 106 L 240 210 L 900 210 L 900 230" fill="none" stroke="var(--flag)" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#c2-flag)"></path>
+        <text x="570" y="203" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="10" font-weight="600" fill="var(--flag)">⚠ "Allow all" network rule — bypasses Front Door + WAF, straight to *.azurewebsites.net</text>
+
+        <!-- backend to PE zone -->
+        <line x1="900" y1="310" x2="900" y2="342" stroke="var(--data)" stroke-width="2" marker-end="url(#c2-data)"></line>
+        <text x="900" y="330" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="9" fill="var(--muted)">private endpoints</text>
+        <line x1="270" y1="310" x2="270" y2="342" stroke="var(--data)" stroke-width="1.6" stroke-dasharray="5 4" marker-end="url(#c2-data)"></line>
+        <text x="270" y="330" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="8.5" fill="var(--muted)">config only</text>
+
+        <rect x="70" y="344" width="1030" height="256" rx="9" fill="none" stroke="var(--data)" stroke-width="1.5" stroke-dasharray="6 4"></rect>
+        <text x="92" y="368" font-family="IBM Plex Sans, sans-serif" font-size="12" font-weight="600" fill="currentColor">Private endpoints — vnet-spoke-tpa-prd (172.25.96.0/20)</text>
+
+        <rect x="100" y="382" width="480" height="90" rx="7" fill="var(--surface)" stroke="var(--data)"></rect>
+        <text x="340" y="408" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="currentColor">sql-prod-fwubq55usdsyk</text>
+        <text x="340" y="424" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="9.5" fill="var(--muted)">(SQL Server) — database: db-config</text>
+        <text x="340" y="440" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="9" fill="var(--muted)">db-config is Standard tier</text>
+        <text x="340" y="458" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="8.5" fill="var(--muted)">pe-sql-prod</text>
+
+        <rect x="620" y="382" width="460" height="90" rx="7" fill="var(--surface)" stroke="var(--data)"></rect>
+        <text x="850" y="408" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="currentColor">kv-tpa-prod-ncus</text>
+        <text x="850" y="424" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="9.5" fill="var(--muted)">(Key Vault)</text>
+        <text x="850" y="458" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="8.5" fill="var(--muted)">pe-kv-prod</text>
+
+        <rect x="100" y="484" width="480" height="94" rx="7" fill="var(--surface)" stroke="var(--data)"></rect>
+        <text x="340" y="510" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="currentColor">appcs-prod-3dv5vnwo5uxsi</text>
+        <text x="340" y="526" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="9.5" fill="var(--muted)">(App Configuration · Standard)</text>
+        <text x="340" y="560" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="8.5" fill="var(--muted)">pe-appconfig-prod</text>
+
+        <rect x="620" y="484" width="460" height="94" rx="7" fill="var(--surface)" stroke="var(--data)"></rect>
+        <text x="850" y="510" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="currentColor">sttpaprodfwubq55usdsyk</text>
+        <text x="850" y="526" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="9.5" fill="var(--muted)">(Storage Account · StorageV2, RAGRS)</text>
+        <text x="850" y="560" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="8.5" fill="var(--muted)">pe-storage-prod (blob)</text>
+
+      </svg>
+
+      <div class="flowkey">
+        <span style="color:var(--azure)"><i class="dash"></i>Edge · Front Door</span>
+        <span style="color:var(--compute)"><i class="dash"></i>Compute · App Service</span>
+        <span style="color:var(--data)"><i class="dash"></i>Data · private endpoints</span>
+        <span style="color:var(--flag)"><i class="dash dashed"></i>Unintended direct path (finding)</span>
+      </div>
+
+      <figcaption>
+        <p><strong>The Front Door path is clean; the direct path is the problem.</strong>
+        <code>/*</code> goes to the frontend, <code>/api/*</code> to the backend, both correctly protected by
+        <code>wafprod</code> in Prevention mode. But both App Services also have an <code>Allow all / Any</code>
+        network rule sitting alongside their Front-Door-only rule — so a client that already knows
+        <code>app-tpa-prod-backend-ncus.azurewebsites.net</code> reaches it directly, with no WAF in front of it.</p>
+        <p>Two resources exist but sit outside every path shown here: a second storage account
+        (<code>stfwubq55usdsyk</code>, no private endpoint, default network rule <em>Allow</em>) and a second
+        App Configuration store (<code>appcs-prod-fwubq55usdsyk</code>, public access disabled but reached by
+        no private endpoint at all — currently unreachable by any network path).</p>
+      </figcaption>
+    </figure>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- SUBSCRIPTION 3 — dt-prd-microsites                            -->
+  <!-- ============================================================ -->
+  <section class="sub" id="microsites">
+    <div class="subhead">
+      <h2>dt-prd-microsites</h2>
+      <span class="tag">Microsites</span>
+      <span class="mgpath">Landing Zones → Application Development → Microsites</span>
+    </div>
+    <p class="note">There is no user-connection path to draw here. The subscription holds a spoke VNet peered
+      to the hub and two platform-management resources — nothing else. Verified two ways: Azure Resource Graph
+      and a direct <code>az resource list</code> both return the same three resources, and the account used has
+      tenant-root Reader, so this isn't a permissions gap.</p>
+
+    <figure>
+      <svg viewBox="0 0 760 220" role="img" width="760" height="220"
+           aria-label="The Microsites production subscription contains only a virtual network, a network watcher, and a security export automation — no Front Door, no compute, no data store, and therefore no path for a user connection to follow.">
+        <defs>
+          <marker id="c3-empty" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--empty)"></path></marker>
+        </defs>
+
+        <rect x="30" y="20" width="220" height="46" rx="7" fill="var(--flag-bg)" stroke="var(--muted)" stroke-width="1.3" stroke-dasharray="4 3"></rect>
+        <text x="140" y="41" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="11.5" font-weight="600" fill="var(--muted)">User request</text>
+        <text x="140" y="57" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="9" fill="var(--muted)">no domain, no public entry point exists</text>
+        <path d="M 250 43 L 300 43" fill="none" stroke="var(--empty)" stroke-width="2" stroke-dasharray="3 4" marker-end="url(#c3-empty)"></path>
+        <text x="275" y="33" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="16" fill="var(--empty)">✕</text>
+
+        <rect x="310" y="70" width="420" height="130" rx="9" fill="none" stroke="var(--empty)" stroke-width="1.5" stroke-dasharray="6 4"></rect>
+        <text x="332" y="94" font-family="IBM Plex Sans, sans-serif" font-size="12.5" font-weight="600" fill="var(--empty)">No application workload deployed</text>
+
+        <rect x="332" y="106" width="220" height="46" rx="6" fill="var(--surface)" stroke="var(--line)"></rect>
+        <text x="442" y="126" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="currentColor">vnet-spoke-microsites-prd</text>
+        <text x="442" y="142" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="9" fill="var(--muted)">(Virtual Network) 172.25.160.0/20 — peered, unused</text>
+
+        <text x="332" y="172" font-family="IBM Plex Mono, monospace" font-size="9" fill="var(--muted)">NetworkWatcher_northcentralus (Network Watcher)</text>
+        <text x="332" y="188" font-family="IBM Plex Mono, monospace" font-size="9" fill="var(--muted)">ExportToWorkspace (Defender security automation)</text>
+      </svg>
+      <figcaption>
+        <p>The landing zone is provisioned and network-ready — peered to the hub with a private address range
+        allocated — but nothing has been built into it. This is a state, not a misconfiguration: whether it should
+        stay empty, host the shared Microsites workload it's named for, or be reclaimed is a product decision,
+        not a technical one.</p>
+      </figcaption>
+    </figure>
+  </section>
+
+  <section>
+    <h2 style="font-size:13px;letter-spacing:.11em;text-transform:uppercase;font-weight:600;margin:0 0 16px;">Findings</h2>
+    <div class="findings">
+
+      <div class="finding">
+        <div class="sev high">High</div>
+        <div>
+          <h3>Both TPA App Services accept traffic that never touched Front Door or the WAF</h3>
+          <p><code>app-tpa-prod-frontend-ncus</code> and <code>app-tpa-prod-backend-ncus</code> each carry two IP
+          restriction rules: <code>Allow-FrontDoor</code> (the intended one) and <code>Allow all / Any</code>
+          (priority 2147483647 — last, but still an Allow). The second rule makes the first one decorative:
+          <code>*.azurewebsites.net</code> is reachable directly, with no WAF inspection.</p>
+          <p>Contrast with the Connect Application apps in the same management group, which restrict to APIM's
+          single IP with an explicit deny-all fallback — this is the pattern TPA should match.</p>
+        </div>
+      </div>
+
+      <div class="finding">
+        <div class="sev high">High</div>
+        <div>
+          <h3>The Premium Front Door's WAF is in Detection mode — it isn't blocking anything</h3>
+          <p><code>WAFGlobalAzureManagedWithGeoRestrictionsAndRateLimiting</code>, attached to
+          <code>afd-dts-global</code> in front of the flagship Connect application, has policy mode
+          <code>Detection</code>. It logs what it would have blocked but takes no action. The Standard-tier WAF
+          protecting the smaller TPA app (<code>wafprod</code>) is correctly set to <code>Prevention</code>.</p>
+          <p>The more elaborately-named policy is the one not actually protecting anything — worth a deliberate
+          decision rather than an oversight, given ten line-of-business apps sit behind it.</p>
+        </div>
+      </div>
+
+      <div class="finding">
+        <div class="sev">Note</div>
+        <div>
+          <h3>Two TPA storage/config resources exist outside every traffic path</h3>
+          <p><code>appcs-prod-fwubq55usdsyk</code> (App Configuration) has public access disabled and no private
+          endpoint reaching it — unreachable by any network path found. <code>stfwubq55usdsyk</code> (Storage
+          Account) has no private endpoint and a default network rule of <em>Allow</em> — reachable, but not part
+          of any confirmed app wiring. Both look like leftovers from an earlier provisioning pass.</p>
+        </div>
+      </div>
+
+      <div class="finding">
+        <div class="sev">Note</div>
+        <div>
+          <h3>Connect Application's ten backend apps are well-isolated from each other and from the internet</h3>
+          <p>Every one of the ten line-of-business App Services accepts inbound traffic only from APIM's public
+          IP (<code>172.214.234.155/32</code>) with an explicit deny-all fallback — the opposite of the TPA
+          finding above. This is the pattern worth standardizing on across the Application Development group.</p>
+        </div>
+      </div>
+
+      <div class="finding">
+        <div class="sev">Note</div>
+        <div>
+          <h3>A test-tier App Service Plan lives inside the production subscription</h3>
+          <p><code>asp-asp-hhs-test-ncus-test-ncus</code> sits in <code>dt-prd-app</code> alongside the real
+          production plans (its doubled name also suggests a templating mistake at creation time). It carries no
+          traffic in the path traced here, but its presence in a prod subscription is worth a cleanup pass.</p>
+        </div>
+      </div>
+
+      <div class="finding">
+        <div class="sev">Note</div>
+        <div>
+          <h3>Two shared-tier resources have weaker evidence than the rest of the diagram</h3>
+          <p><code>pg-dts-shared-prod-ncus</code> is network-isolated correctly (VNet-delegated subnet, public
+          access disabled) but no managed identity in the subscription holds an RBAC role assignment on it —
+          its consumer is unconfirmed. Separately, the DLQ function's own identity
+          (<code>uai-dlq-processor-prod</code>) holds a role on Event Hub but none on the shared Storage account —
+          so while the function is confirmed to consume from Event Hub, it is not confirmed to write to Storage.
+          Storage's real callers are two other identities, one of which (<code>uai-evh-audit-logs-dlq-prod</code>)
+          suggests <code>audit-log</code> may dead-letter independently rather than through the shared function.</p>
+          <p>Both are drawn with a dashed border to mark them honestly as unconfirmed rather than guessed — likely
+          resolvable by reading the relevant Key Vault secrets or application code, neither of which this
+          control-plane review opened.</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <footer>
+    <p><strong>Scope and evidence.</strong> Read-only. Resource inventory via Azure Resource Graph across all
+      three subscriptions (148 resources). Traffic paths confirmed via the ARM Cdn (Front Door), ApiManagement,
+      Web, Network, Sql, DBforPostgreSQL, EventHub and Storage providers — endpoints, origin groups, origins,
+      routes, security-policy associations, APIM API-to-backend mappings, App Service network/access-restriction
+      configuration, and private-endpoint target resolution. Shared-service wiring for Event Hub/Storage was
+      confirmed via RBAC role assignments held by named managed identities — no app setting, connection string,
+      or secret value was read. Read as <code>hdesai@mhemail.org</code> at 15:10 UTC on 3 September 2026.</p>
+    <p><strong>Not covered.</strong> APIM policy XML (rate limiting, transformation, auth validation), WAF custom
+      rule contents, App Service application settings and connection strings, SQL/Postgres firewall rules beyond
+      network isolation, DNS resolution paths, and cost.</p>
+    <p><strong>Withheld.</strong> Subscription and tenant GUIDs are not shown. Public IPs, hostnames and domain
+      names are included because the diagram is unreadable without them — treat this page as internal.</p>
+  </footer>
+
+</div>

@@ -1,0 +1,576 @@
+<title>Mercyhealth Tenant Hierarchy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+
+<style>
+:root{
+  --ground:#F4F7FA;
+  --surface:#FFFFFF;
+  --surface-2:#EDF1F6;
+  --line:#D6DEE8;
+  --line-soft:#E4EAF1;
+  --ink:#0F1822;
+  --ink-2:#38475A;
+  --muted:#64748B;
+
+  --azure:#1C6EA4;
+  --platform:#5A4FBF;
+  --landing:#0F766E;
+  --holding:#8A6410;
+  --flag:#B04A16;
+  --flag-bg:#FBF0E9;
+  --flag-line:#EAD2C1;
+
+  --prd:#9B2C3E;
+  --tst:#6B5AA8;
+  --dev:#2A6E8F;
+  --shr:#5B6472;
+
+  --radius:6px;
+  --f-sans:"IBM Plex Sans",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,"Cascadia Mono","Consolas",monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#0C1219;
+    --surface:#131C26;
+    --surface-2:#1A2632;
+    --line:#2A3947;
+    --line-soft:#22303D;
+    --ink:#E6EDF5;
+    --ink-2:#B4C3D3;
+    --muted:#8496A9;
+
+    --azure:#5DA9DA;
+    --platform:#A79AF0;
+    --landing:#4FBFAF;
+    --holding:#D6AC4E;
+    --flag:#EC8B54;
+    --flag-bg:#2A1D14;
+    --flag-line:#4A3524;
+
+    --prd:#EE8195;
+    --tst:#B3A4EE;
+    --dev:#6FB6D8;
+    --shr:#93A2B4;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0C1219;
+  --surface:#131C26;
+  --surface-2:#1A2632;
+  --line:#2A3947;
+  --line-soft:#22303D;
+  --ink:#E6EDF5;
+  --ink-2:#B4C3D3;
+  --muted:#8496A9;
+
+  --azure:#5DA9DA;
+  --platform:#A79AF0;
+  --landing:#4FBFAF;
+  --holding:#D6AC4E;
+  --flag:#EC8B54;
+  --flag-bg:#2A1D14;
+  --flag-line:#4A3524;
+
+  --prd:#EE8195;
+  --tst:#B3A4EE;
+  --dev:#6FB6D8;
+  --shr:#93A2B4;
+}
+
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  background:var(--ground);
+  color:var(--ink);
+  font-family:var(--f-sans);
+  font-size:15px;
+  line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1080px;margin:0 auto;padding:40px 24px 72px;}
+
+/* ---------- header ---------- */
+.eyebrow{
+  font-family:var(--f-mono);
+  font-size:11px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--azure);
+  font-weight:600;
+  margin:0 0 10px;
+}
+h1{
+  font-size:clamp(28px,4.2vw,40px);
+  line-height:1.1;
+  letter-spacing:-.02em;
+  font-weight:600;
+  margin:0 0 12px;
+  text-wrap:balance;
+}
+.lede{
+  margin:0;
+  max-width:62ch;
+  color:var(--ink-2);
+  font-size:16px;
+}
+.meta{
+  margin-top:22px;
+  padding-top:18px;
+  border-top:1px solid var(--line);
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px 34px;
+  font-size:12.5px;
+  color:var(--muted);
+}
+.meta div{display:flex;gap:8px;align-items:baseline;}
+.meta dt{
+  font-family:var(--f-mono);
+  font-size:10.5px;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+}
+.meta dd{margin:0;color:var(--ink-2);font-weight:500;}
+
+/* ---------- stats ---------- */
+.stats{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:1px;
+  background:var(--line);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  overflow:hidden;
+  margin:34px 0 44px;
+}
+.stat{background:var(--surface);padding:16px 18px;}
+.stat .n{
+  font-family:var(--f-mono);
+  font-size:27px;
+  font-weight:500;
+  letter-spacing:-.02em;
+  font-variant-numeric:tabular-nums;
+  line-height:1.1;
+}
+.stat .k{
+  font-size:11px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin-top:5px;
+  font-weight:500;
+}
+.stat .sub{font-size:12px;color:var(--muted);margin-top:3px;}
+.stat.warn .n{color:var(--flag);}
+
+/* ---------- section ---------- */
+section{margin-bottom:52px;}
+h2{
+  font-size:13px;
+  letter-spacing:.11em;
+  text-transform:uppercase;
+  font-weight:600;
+  color:var(--ink);
+  margin:0 0 6px;
+}
+.note{margin:0 0 20px;color:var(--muted);font-size:13.5px;max-width:64ch;}
+
+/* ---------- legend ---------- */
+.legend{
+  display:flex;flex-wrap:wrap;gap:8px 20px;
+  margin-bottom:22px;padding-bottom:20px;
+  border-bottom:1px solid var(--line-soft);
+  font-size:12.5px;color:var(--ink-2);
+}
+.legend span{display:inline-flex;align-items:center;gap:7px;}
+.sw{width:11px;height:11px;border-radius:2px;flex:none;}
+
+/* ---------- tree ---------- */
+.canvas{
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:24px 26px 26px;
+  overflow-x:auto;
+}
+.tree,.tree ul{list-style:none;margin:0;padding:0;}
+.tree ul{padding-left:19px;}
+.tree li{position:relative;padding-left:21px;}
+/* vertical rail */
+.tree li::before{
+  content:"";position:absolute;left:0;top:0;bottom:0;
+  border-left:1px solid var(--line);
+}
+.tree li:last-child::before{height:16px;bottom:auto;}
+/* horizontal stub */
+.tree li::after{
+  content:"";position:absolute;left:0;top:16px;width:14px;
+  border-top:1px solid var(--line);
+}
+.tree > li{padding-left:0;}
+.tree > li::before,.tree > li::after{display:none;}
+
+.node{
+  display:flex;align-items:center;gap:9px;
+  padding:5px 0;min-height:32px;
+}
+.node .name{font-weight:500;letter-spacing:-.005em;white-space:nowrap;}
+.node .id{
+  font-family:var(--f-mono);font-size:11.5px;color:var(--muted);
+  white-space:nowrap;
+}
+
+/* MG marker */
+.mg-dot{
+  width:9px;height:9px;border-radius:2px;flex:none;
+  background:var(--azure);
+}
+.t-platform .mg-dot{background:var(--platform);}
+.t-landing  .mg-dot{background:var(--landing);}
+.t-holding  .mg-dot{background:var(--holding);}
+.t-platform > .node .name{color:var(--platform);}
+.t-landing  > .node .name{color:var(--landing);}
+.t-holding  > .node .name{color:var(--holding);}
+
+.node.root .name{font-size:16px;font-weight:600;}
+
+/* subscription chip */
+.sub-node{padding:3px 0;}
+.chip{
+  display:inline-flex;align-items:center;gap:9px;
+  background:var(--surface-2);
+  border:1px solid var(--line-soft);
+  border-radius:var(--radius);
+  padding:4px 10px 4px 9px;
+  font-family:var(--f-mono);
+  font-size:12.5px;
+  color:var(--ink-2);
+  white-space:nowrap;
+}
+.env{
+  font-family:var(--f-sans);
+  font-size:9.5px;font-weight:700;
+  letter-spacing:.09em;text-transform:uppercase;
+  padding:1px 5px;border-radius:3px;
+  border:1px solid currentColor;
+  flex:none;
+}
+.env.prd{color:var(--prd);}
+.env.tst{color:var(--tst);}
+.env.dev{color:var(--dev);}
+.env.shr{color:var(--shr);}
+.env.na {color:var(--muted);}
+
+/* markers */
+.tag{
+  font-size:10.5px;font-weight:600;
+  letter-spacing:.05em;text-transform:uppercase;
+  color:var(--muted);
+  border:1px dashed var(--line);
+  border-radius:3px;padding:1px 6px;
+  white-space:nowrap;
+}
+.tag.alert{
+  color:var(--flag);
+  background:var(--flag-bg);
+  border:1px solid var(--flag-line);
+  border-style:solid;
+}
+
+/* ---------- findings ---------- */
+.findings{display:flex;flex-direction:column;gap:1px;background:var(--line);
+  border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;}
+.finding{background:var(--surface);padding:17px 20px;display:grid;
+  grid-template-columns:78px 1fr;gap:18px;align-items:start;}
+.sev{
+  font-family:var(--f-mono);font-size:10px;font-weight:600;
+  letter-spacing:.1em;text-transform:uppercase;
+  padding:3px 0;color:var(--muted);
+}
+.sev.review{color:var(--flag);}
+.finding h3{margin:0 0 5px;font-size:14.5px;font-weight:600;letter-spacing:-.005em;}
+.finding p{margin:0;font-size:13.5px;color:var(--ink-2);max-width:70ch;}
+.finding p + p{margin-top:7px;color:var(--muted);font-size:12.5px;}
+code{
+  font-family:var(--f-mono);font-size:.9em;
+  background:var(--surface-2);border:1px solid var(--line-soft);
+  border-radius:3px;padding:.5px 4px;
+}
+
+footer{
+  margin-top:56px;padding-top:20px;border-top:1px solid var(--line);
+  font-size:12px;color:var(--muted);max-width:74ch;
+}
+footer p{margin:0 0 7px;}
+
+@media (max-width:640px){
+  .wrap{padding:28px 16px 56px;}
+  .finding{grid-template-columns:1fr;gap:7px;}
+  .meta{gap:8px 22px;}
+}
+</style>
+
+<div class="wrap">
+
+  <header>
+    <p class="eyebrow">Azure Governance Canvas</p>
+    <h1>Mercyhealth tenant hierarchy</h1>
+    <p class="lede">Every management group and subscription in the Mercyhealth Azure tenant, read live from the
+      Management Groups API. Indentation is the policy-inheritance path — a policy assigned at any node cascades to
+      everything beneath it.</p>
+    <dl class="meta">
+      <div><dt>Tenant</dt><dd>mh.mercyhealthcare.org</dd></div>
+      <div><dt>Source</dt><dd>ARM <code>managementGroups/descendants</code> 2021-04-01</dd></div>
+      <div><dt>Observed</dt><dd>2026-09-03 · 15:30 UTC</dd></div>
+      <div><dt>Read as</dt><dd>hdesai@mhemail.org</dd></div>
+    </dl>
+  </header>
+
+  <div class="stats">
+    <div class="stat"><div class="n">18</div><div class="k">Management groups</div><div class="sub">incl. tenant root</div></div>
+    <div class="stat"><div class="n">22</div><div class="k">Subscriptions</div><div class="sub">all Enabled</div></div>
+    <div class="stat"><div class="n">4</div><div class="k">Depth below root</div><div class="sub">of 6 permitted</div></div>
+    <div class="stat warn"><div class="n">5</div><div class="k">Empty groups</div><div class="sub">no subscriptions</div></div>
+    <div class="stat warn"><div class="n">1</div><div class="k">Root-attached sub</div><div class="sub">bypasses policy</div></div>
+  </div>
+
+  <section>
+    <h2>The hierarchy</h2>
+    <p class="note">Colour marks the governance tier each group belongs to. Subscription names are shown as
+      identifiers; environment is read from the name token.</p>
+
+    <div class="legend">
+      <span><i class="sw" style="background:var(--azure)"></i>Root / organisation</span>
+      <span><i class="sw" style="background:var(--platform)"></i>Platform</span>
+      <span><i class="sw" style="background:var(--landing)"></i>Landing zones</span>
+      <span><i class="sw" style="background:var(--holding)"></i>Holding &amp; lifecycle</span>
+      <span><i class="sw" style="background:var(--flag)"></i>Needs review</span>
+    </div>
+
+    <div class="canvas">
+      <ul class="tree">
+        <li>
+          <div class="node root"><i class="mg-dot"></i><span class="name">Tenant Root Group</span><span class="id">root_group</span></div>
+          <ul>
+
+            <li class="t-holding">
+              <div class="node"><i class="mg-dot"></i><span class="name">Block Subscriptions</span><span class="id">block_subscriptions</span><span class="tag">empty</span></div>
+            </li>
+
+            <li>
+              <div class="node"><i class="mg-dot"></i><span class="name">Mercyhealth</span><span class="id">mercyhealth</span></div>
+              <ul>
+
+                <li class="t-holding">
+                  <div class="node"><i class="mg-dot"></i><span class="name">Decommissioned</span><span class="id">mercyhealth-decommissioned</span><span class="tag">empty</span></div>
+                </li>
+
+                <li class="t-landing">
+                  <div class="node"><i class="mg-dot"></i><span class="name">Landing Zones</span><span class="id">mercyhealth-landingzones</span></div>
+                  <ul>
+
+                    <li class="t-landing">
+                      <div class="node"><i class="mg-dot"></i><span class="name">AI Governance</span><span class="id">…-ai-governance</span></div>
+                      <ul>
+                        <li><div class="node sub-node"><span class="chip"><span class="env prd">prd</span>dt-prd-vitea-oeqrq2jxadm36</span></div></li>
+                      </ul>
+                    </li>
+
+                    <li class="t-landing">
+                      <div class="node"><i class="mg-dot"></i><span class="name">Application Development</span><span class="id">…-appdev</span></div>
+                      <ul>
+
+                        <li class="t-landing">
+                          <div class="node"><i class="mg-dot"></i><span class="name">Connect Application</span><span class="id">…-appdev-connect</span></div>
+                          <ul>
+                            <li><div class="node sub-node"><span class="chip"><span class="env dev">dev</span>dt-dev-app-oeqrq2jxadm36</span></div></li>
+                            <li><div class="node sub-node"><span class="chip"><span class="env prd">prd</span>dt-prd-app-oeqrq2jxadm36</span></div></li>
+                            <li><div class="node sub-node"><span class="chip"><span class="env tst">tst</span>dt-tst-app-oeqrq2jxadm36</span></div></li>
+                          </ul>
+                        </li>
+
+                        <li class="t-landing">
+                          <div class="node"><i class="mg-dot"></i><span class="name">Microsites</span><span class="id">…-appdev-microsites</span></div>
+                          <ul>
+                            <li><div class="node sub-node"><span class="chip"><span class="env dev">dev</span>dt-dev-microsites-oeqrq2jxadm36</span></div></li>
+                            <li><div class="node sub-node"><span class="chip"><span class="env prd">prd</span>dt-prd-microsites-oeqrq2jxadm36</span></div></li>
+                            <li><div class="node sub-node"><span class="chip"><span class="env shr">shr</span>dt-shr-microsites-oeqrq2jxadm36</span></div></li>
+                            <li><div class="node sub-node"><span class="chip"><span class="env tst">tst</span>dt-tst-microsites-oeqrq2jxadm36</span></div></li>
+                          </ul>
+                        </li>
+
+                        <li class="t-landing">
+                          <div class="node"><i class="mg-dot"></i><span class="name">TPA Application</span><span class="id">…-appdev-tpa</span></div>
+                          <ul>
+                            <li><div class="node sub-node"><span class="chip"><span class="env dev">dev</span>dt-dev-tpa-oeqrq2jxadm36</span></div></li>
+                            <li><div class="node sub-node"><span class="chip"><span class="env prd">prd</span>dt-prd-tpa-oeqrq2jxadm36</span></div></li>
+                            <li><div class="node sub-node"><span class="chip"><span class="env shr">shr</span>dt-shr-tpa-oeqrq2jxadm36</span></div></li>
+                            <li><div class="node sub-node"><span class="chip"><span class="env tst">tst</span>dt-tst-tpa-oeqrq2jxadm36</span></div></li>
+                          </ul>
+                        </li>
+
+                        <li>
+                          <div class="node sub-node"><span class="chip"><span class="env prd">prd</span>dt-prd-deployments-001</span><span class="tag">naming outlier</span></div>
+                        </li>
+                      </ul>
+                    </li>
+
+                    <li class="t-landing">
+                      <div class="node"><i class="mg-dot"></i><span class="name">Data and Analytics</span><span class="id">…-dna</span></div>
+                      <ul>
+                        <li><div class="node sub-node"><span class="chip"><span class="env dev">dev</span>dt-dev-analytics-oeqrq2jxadm36</span></div></li>
+                        <li><div class="node sub-node"><span class="chip"><span class="env prd">prd</span>dt-prd-analytics-oeqrq2jxadm36</span></div></li>
+                        <li><div class="node sub-node"><span class="chip"><span class="env tst">tst</span>dt-tst-analytics-oeqrq2jxadm36</span></div></li>
+                      </ul>
+                    </li>
+
+                    <li class="t-landing">
+                      <div class="node"><i class="mg-dot"></i><span class="name">Workday</span><span class="id">…-workday</span></div>
+                      <ul>
+                        <li><div class="node sub-node"><span class="chip"><span class="env na">n/a</span>dt-workday-oeqrq2jxadm36</span></div></li>
+                      </ul>
+                    </li>
+                  </ul>
+                </li>
+
+                <li class="t-platform">
+                  <div class="node"><i class="mg-dot"></i><span class="name">Platform</span><span class="id">mercyhealth-platform</span></div>
+                  <ul>
+                    <li class="t-platform">
+                      <div class="node"><i class="mg-dot"></i><span class="name">Connectivity</span><span class="id">…-platform-connectivity</span></div>
+                      <ul>
+                        <li><div class="node sub-node"><span class="chip"><span class="env prd">prd</span>dt-prd-connectivity-oeqrq2jxadm36</span></div></li>
+                      </ul>
+                    </li>
+                    <li class="t-platform">
+                      <div class="node"><i class="mg-dot"></i><span class="name">Identity</span><span class="id">…-platform-identity</span><span class="tag alert">empty</span></div>
+                    </li>
+                    <li class="t-platform">
+                      <div class="node"><i class="mg-dot"></i><span class="name">Management</span><span class="id">…-platform-management</span></div>
+                      <ul>
+                        <li><div class="node sub-node"><span class="chip"><span class="env prd">prd</span>dt-prd-azuredevops-oeqrq2jxadm36</span></div></li>
+                        <li><div class="node sub-node"><span class="chip"><span class="env prd">prd</span>dt-prd-logging-oeqrq2jxadm36</span></div></li>
+                        <li><div class="node sub-node"><span class="chip"><span class="env prd">prd</span>dt-prd-management-oeqrq2jxadm36</span></div></li>
+                      </ul>
+                    </li>
+                  </ul>
+                </li>
+
+                <li class="t-holding">
+                  <div class="node"><i class="mg-dot"></i><span class="name">Quarantined</span><span class="id">mercyhealth-quarantined</span><span class="tag">empty</span></div>
+                </li>
+
+                <li class="t-holding">
+                  <div class="node"><i class="mg-dot"></i><span class="name">Sandbox</span><span class="id">mercyhealth-sandbox</span><span class="tag alert">empty — see below</span></div>
+                </li>
+              </ul>
+            </li>
+
+            <li>
+              <div class="node sub-node"><span class="chip"><span class="env na">n/a</span>dt-sandbox</span><span class="tag alert">attached to root</span></div>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2>What the structure shows</h2>
+    <p class="note">Observations from the hierarchy itself. These are structural findings only — no policy assignments,
+      RBAC, or resource contents were read.</p>
+
+    <div class="findings">
+
+      <div class="finding">
+        <div class="sev review">Review</div>
+        <div>
+          <h3><code>dt-sandbox</code> sits on the tenant root, not in the Sandbox group</h3>
+          <p>It is the only subscription attached directly to the root management group, so it inherits nothing from
+            the <span style="color:var(--holding);font-weight:600">Mercyhealth</span> branch — none of the organisation-level
+            policy, and none of the sandbox guardrails. Meanwhile the purpose-built <strong>Sandbox</strong> group
+            immediately above it is empty.</p>
+          <p>New subscriptions land at the root by default, which is the usual way this happens. Moving it under
+            Sandbox is a metadata move — it does not touch resources — but it does change which policies apply, so it
+            wants a what-if review of the Sandbox group's assignments before anyone moves it.</p>
+        </div>
+      </div>
+
+      <div class="finding">
+        <div class="sev review">Review</div>
+        <div>
+          <h3>The Identity platform group has no subscription</h3>
+          <p>Connectivity and Management both hold their platform subscriptions. Identity holds none, so there is no
+            dedicated identity landing zone in this tenant — domain controllers or Entra Domain Services, if they
+            exist, live somewhere else in the tree.</p>
+          <p>That is a legitimate design when identity is fully SaaS, but the empty group implies an intent that was
+            not completed. Worth confirming which it is.</p>
+        </div>
+      </div>
+
+      <div class="finding">
+        <div class="sev">Note</div>
+        <div>
+          <h3>Three lifecycle groups are staged but unused</h3>
+          <p><strong>Block Subscriptions</strong>, <strong>Decommissioned</strong> and <strong>Quarantined</strong> are
+            all empty. This is the healthy state — they are destinations for subscriptions that need to be caught,
+            retired, or isolated, and an empty Quarantined group means nothing is currently quarantined.</p>
+          <p>Their value depends entirely on the policy assigned to them, which this canvas does not cover.</p>
+        </div>
+      </div>
+
+      <div class="finding">
+        <div class="sev">Note</div>
+        <div>
+          <h3><code>dt-prd-deployments-001</code> breaks both the naming and the placement pattern</h3>
+          <p>Every other subscription carries the <code>-oeqrq2jxadm36</code> tenant suffix; this one uses
+            <code>-001</code>. It also hangs directly off Application Development rather than sitting in a workload
+            group beside Connect, Microsites and TPA.</p>
+          <p>Both point to it being provisioned outside the normal vending process. Harmless in itself — but it means
+            the naming standard is not being enforced by policy.</p>
+        </div>
+      </div>
+
+      <div class="finding">
+        <div class="sev">Note</div>
+        <div>
+          <h3>Depth is at the edge of the recommended range</h3>
+          <p>The deepest path — Root → Mercyhealth → Landing Zones → Application Development → Connect Application —
+            is four levels below the root, against a hard ceiling of six. Cloud Adoption Framework guidance
+            recommends keeping the tree to three or four levels.</p>
+          <p>There is room for two more, but adding another workload tier under Application Development would put the
+            tree past what CAF advises and make inherited policy harder to reason about.</p>
+        </div>
+      </div>
+
+      <div class="finding">
+        <div class="sev">Note</div>
+        <div>
+          <h3>Workload grouping is inconsistent across landing zones</h3>
+          <p>Application Development nests each workload in its own group, so Connect, Microsites and TPA can each
+            carry distinct policy. Data and Analytics puts its three subscriptions flat in one group, and AI
+            Governance and Workday hold a single subscription each.</p>
+          <p>Flat is the right call at this size. It becomes a constraint only when two workloads in the same group
+            need to diverge on policy.</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <footer>
+    <p><strong>Scope and evidence.</strong> Read-only. Everything above comes from one call to the ARM
+      <code>managementGroups/descendants</code> endpoint plus <code>az account list</code>, both as
+      <code>hdesai@mhemail.org</code> at 15:30 UTC on 3 September 2026. All 22 subscriptions visible to the CLI are
+      accounted for in the tree, so nothing is missing at this permission level — though management groups this
+      account cannot read would not appear.</p>
+    <p><strong>Not covered.</strong> Policy assignments, initiatives and exemptions; RBAC and PIM; resource contents;
+      cost. The findings are structural and none of them is a recommendation to change anything yet.</p>
+    <p><strong>Withheld.</strong> Tenant and subscription GUIDs are deliberately not shown on this page. They are in
+      the local evidence file in the workspace.</p>
+  </footer>
+
+</div>

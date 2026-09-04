@@ -1,0 +1,537 @@
+<title>Mercyhealth Connectivity Fabric</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+
+<style>
+:root{
+  --ground:#F4F7FA;
+  --surface:#FFFFFF;
+  --surface-2:#EDF1F6;
+  --line:#D6DEE8;
+  --line-soft:#E4EAF1;
+  --ink:#0F1822;
+  --ink-2:#38475A;
+  --muted:#64748B;
+
+  --azure:#1C6EA4;
+  --ew:#0F766E;        /* east-west */
+  --ns:#B4680E;        /* north-south / internet */
+  --hy:#5A4FBF;        /* hybrid / on-prem */
+  --fw:#B03A2E;        /* firewall */
+  --flag:#B04A16;
+  --flag-bg:#FBF0E9;
+  --flag-line:#EAD2C1;
+  --ok:#1F7A4D;
+
+  --prd:#9B2C3E;
+  --tst:#6B5AA8;
+  --dev:#2A6E8F;
+  --shr:#5B6472;
+
+  --radius:6px;
+  --f-sans:"IBM Plex Sans",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,"Cascadia Mono","Consolas",monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#0C1219; --surface:#131C26; --surface-2:#1A2632;
+    --line:#2A3947; --line-soft:#22303D;
+    --ink:#E6EDF5; --ink-2:#B4C3D3; --muted:#8496A9;
+    --azure:#5DA9DA;
+    --ew:#4FBFAF; --ns:#E0A44A; --hy:#A79AF0; --fw:#E8806F;
+    --flag:#EC8B54; --flag-bg:#2A1D14; --flag-line:#4A3524;
+    --ok:#5CC48D;
+    --prd:#EE8195; --tst:#B3A4EE; --dev:#6FB6D8; --shr:#93A2B4;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0C1219; --surface:#131C26; --surface-2:#1A2632;
+  --line:#2A3947; --line-soft:#22303D;
+  --ink:#E6EDF5; --ink-2:#B4C3D3; --muted:#8496A9;
+  --azure:#5DA9DA;
+  --ew:#4FBFAF; --ns:#E0A44A; --hy:#A79AF0; --fw:#E8806F;
+  --flag:#EC8B54; --flag-bg:#2A1D14; --flag-line:#4A3524;
+  --ok:#5CC48D;
+  --prd:#EE8195; --tst:#B3A4EE; --dev:#6FB6D8; --shr:#93A2B4;
+}
+
+*{box-sizing:border-box;}
+body{margin:0;background:var(--ground);color:var(--ink);
+  font-family:var(--f-sans);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased;}
+.wrap{max-width:1180px;margin:0 auto;padding:40px 24px 72px;}
+
+.eyebrow{font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--azure);font-weight:600;margin:0 0 10px;}
+h1{font-size:clamp(28px,4.2vw,40px);line-height:1.1;letter-spacing:-.02em;font-weight:600;
+  margin:0 0 12px;text-wrap:balance;}
+.lede{margin:0;max-width:64ch;color:var(--ink-2);font-size:16px;}
+.meta{margin-top:22px;padding-top:18px;border-top:1px solid var(--line);
+  display:flex;flex-wrap:wrap;gap:10px 34px;font-size:12.5px;color:var(--muted);}
+.meta div{display:flex;gap:8px;align-items:baseline;}
+.meta dt{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;}
+.meta dd{margin:0;color:var(--ink-2);font-weight:500;}
+
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:1px;
+  background:var(--line);border:1px solid var(--line);border-radius:var(--radius);
+  overflow:hidden;margin:34px 0 44px;}
+.stat{background:var(--surface);padding:16px 18px;}
+.stat .n{font-family:var(--f-mono);font-size:26px;font-weight:500;letter-spacing:-.02em;
+  font-variant-numeric:tabular-nums;line-height:1.1;}
+.stat .k{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);
+  margin-top:5px;font-weight:500;}
+.stat .sub{font-size:12px;color:var(--muted);margin-top:3px;}
+.stat.warn .n{color:var(--flag);}
+.stat.good .n{color:var(--ok);}
+
+section{margin-bottom:52px;}
+h2{font-size:13px;letter-spacing:.11em;text-transform:uppercase;font-weight:600;
+  color:var(--ink);margin:0 0 6px;}
+.note{margin:0 0 20px;color:var(--muted);font-size:13.5px;max-width:66ch;}
+
+/* figure */
+figure{margin:0;background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--radius);padding:22px 24px 18px;overflow-x:auto;}
+figure svg{display:block;width:100%;min-width:940px;max-width:100%;height:auto;}
+figcaption{margin-top:16px;padding-top:14px;border-top:1px solid var(--line-soft);
+  font-size:13px;color:var(--muted);max-width:82ch;}
+
+.flowkey{display:flex;flex-wrap:wrap;gap:8px 22px;margin:18px 0 0;font-size:12.5px;color:var(--ink-2);}
+.flowkey span{display:inline-flex;align-items:center;gap:8px;}
+.dash{width:26px;height:0;border-top:2.5px solid currentColor;flex:none;}
+
+/* vnet grid */
+.fam{margin-bottom:26px;}
+.famhead{display:flex;align-items:baseline;gap:12px;margin-bottom:10px;}
+.famhead h3{margin:0;font-size:13.5px;font-weight:600;letter-spacing:-.005em;}
+.famhead .c{font-family:var(--f-mono);font-size:11px;color:var(--muted);}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(212px,1fr));gap:12px;}
+.vnet{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  padding:13px 14px;display:flex;flex-direction:column;gap:7px;}
+.vnet .top{display:flex;align-items:center;gap:8px;}
+.vnet .nm{font-family:var(--f-mono);font-size:12px;font-weight:500;color:var(--ink);
+  overflow-wrap:anywhere;line-height:1.35;}
+.vnet .cidr{font-family:var(--f-mono);font-size:15px;font-weight:600;color:var(--azure);
+  font-variant-numeric:tabular-nums;letter-spacing:-.01em;}
+.vnet .sub{font-size:11.5px;color:var(--muted);border-top:1px solid var(--line-soft);
+  padding-top:7px;overflow-wrap:anywhere;}
+.env{font-family:var(--f-sans);font-size:9.5px;font-weight:700;letter-spacing:.09em;
+  text-transform:uppercase;padding:1px 5px;border-radius:3px;border:1px solid currentColor;flex:none;}
+.env.prd{color:var(--prd);} .env.tst{color:var(--tst);}
+.env.dev{color:var(--dev);} .env.shr{color:var(--shr);} .env.na{color:var(--muted);}
+
+/* table */
+.tbl{width:100%;border-collapse:collapse;font-size:13.5px;
+  border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;}
+.tbl th{background:var(--surface-2);text-align:left;padding:10px 14px;font-size:11px;
+  letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600;
+  border-bottom:1px solid var(--line);}
+.tbl td{background:var(--surface);padding:11px 14px;border-bottom:1px solid var(--line-soft);
+  vertical-align:top;color:var(--ink-2);}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl td.path{font-family:var(--f-mono);font-size:11.5px;color:var(--ink);line-height:1.6;}
+.pill{display:inline-block;font-size:10.5px;font-weight:600;letter-spacing:.05em;
+  text-transform:uppercase;padding:2px 7px;border-radius:3px;white-space:nowrap;}
+.pill.yes{color:var(--ok);border:1px solid currentColor;}
+.pill.no{color:var(--muted);border:1px dashed currentColor;}
+.tblwrap{overflow-x:auto;}
+
+/* findings */
+.findings{display:flex;flex-direction:column;gap:1px;background:var(--line);
+  border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;}
+.finding{background:var(--surface);padding:17px 20px;display:grid;
+  grid-template-columns:84px 1fr;gap:18px;align-items:start;}
+.sev{font-family:var(--f-mono);font-size:10px;font-weight:600;letter-spacing:.1em;
+  text-transform:uppercase;padding:3px 0;color:var(--muted);}
+.sev.high{color:var(--flag);}
+.sev.unk{color:var(--azure);}
+.finding h3{margin:0 0 5px;font-size:14.5px;font-weight:600;letter-spacing:-.005em;}
+.finding p{margin:0;font-size:13.5px;color:var(--ink-2);max-width:74ch;}
+.finding p + p{margin-top:7px;color:var(--muted);font-size:12.5px;}
+code{font-family:var(--f-mono);font-size:.9em;background:var(--surface-2);
+  border:1px solid var(--line-soft);border-radius:3px;padding:.5px 4px;}
+
+footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--line);
+  font-size:12px;color:var(--muted);max-width:80ch;}
+footer p{margin:0 0 7px;}
+
+@media (max-width:640px){
+  .wrap{padding:28px 16px 56px;}
+  .finding{grid-template-columns:1fr;gap:7px;}
+}
+</style>
+
+<div class="wrap">
+
+  <header>
+    <p class="eyebrow">Azure Connectivity Canvas</p>
+    <h1>Mercyhealth connectivity fabric</h1>
+    <p class="lede">End-to-end traffic paths through the <code>dt-prd-connectivity</code> subscription. One secured
+      Virtual WAN hub, one Azure Firewall, sixteen spoke VNets across sixteen subscriptions — and Routing Intent
+      that forces every flow, east-west and north-south alike, through the firewall.</p>
+    <dl class="meta">
+      <div><dt>Subscription</dt><dd>dt-prd-connectivity-oeqrq2jxadm36</dd></div>
+      <div><dt>Resource group</dt><dd>rg-vwan-v3nysoeym4kga</dd></div>
+      <div><dt>Region</dt><dd>North Central US</dd></div>
+      <div><dt>Observed</dt><dd>2026-09-03 · 14:24 UTC</dd></div>
+    </dl>
+  </header>
+
+  <div class="stats">
+    <div class="stat"><div class="n">1</div><div class="k">Virtual WAN hub</div><div class="sub">172.25.0.0/24</div></div>
+    <div class="stat"><div class="n">16</div><div class="k">Spoke VNets</div><div class="sub">16 subscriptions</div></div>
+    <div class="stat good"><div class="n">16</div><div class="k">Hub connections</div><div class="sub">all Succeeded</div></div>
+    <div class="stat"><div class="n">0</div><div class="k">Spoke-to-spoke peerings</div><div class="sub">pure hub-and-spoke</div></div>
+    <div class="stat warn"><div class="n">1</div><div class="k">Firewall, no zones</div><div class="sub">single AZ</div></div>
+    <div class="stat warn"><div class="n">1</div><div class="k">Live VPN tunnel</div><div class="sub">of 2 configured</div></div>
+  </div>
+
+  <section>
+    <h2>Traffic flow</h2>
+    <p class="note">Routing Intent replaces the usual per-connection route tables with two policy routes, both
+      next-hopping the firewall. The consequence is the shape below: spokes never talk to each other directly —
+      east-west traffic hairpins up into the hub, through the firewall, and back down.</p>
+
+    <figure>
+      <svg viewBox="0 0 1200 570" role="img"
+           aria-label="Sixteen spoke VNets connect only to the Mercyhealth virtual hub. Inside the hub, the virtual router forwards all traffic to Azure Firewall. From the firewall, north-south traffic goes up to the Internet with SNAT, hybrid traffic goes right through the VPN gateway to on-premises, and east-west traffic hairpins back to the router and down to another spoke.">
+        <defs>
+          <marker id="aEW" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--ew)"></path>
+          </marker>
+          <marker id="aNS" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--ns)"></path>
+          </marker>
+          <marker id="aHY" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--hy)"></path>
+          </marker>
+        </defs>
+
+        <!-- ===== Internet ===== -->
+        <rect x="590" y="24" width="200" height="66" rx="7" fill="var(--surface-2)" stroke="var(--ns)" stroke-width="1.5"></rect>
+        <text x="690" y="50" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="14" font-weight="600" fill="currentColor">Internet</text>
+        <text x="690" y="70" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="var(--muted)">SNAT 20.25.217.244</text>
+
+        <!-- ===== Spokes ===== -->
+        <text x="20" y="196" font-family="IBM Plex Sans, sans-serif" font-size="11" font-weight="600" fill="var(--muted)" letter-spacing="1.2">SPOKE VNETS</text>
+
+        <rect x="20" y="225" width="180" height="58" rx="6" fill="var(--surface-2)" stroke="var(--line)"></rect>
+        <text x="34" y="247" font-family="IBM Plex Mono, monospace" font-size="11" fill="currentColor">vnet-spoke-appdev-prd</text>
+        <text x="34" y="268" font-family="IBM Plex Mono, monospace" font-size="12.5" font-weight="600" fill="var(--azure)">172.25.48.0/20</text>
+
+        <rect x="20" y="291" width="180" height="58" rx="6" fill="var(--surface-2)" stroke="var(--line)"></rect>
+        <text x="34" y="313" font-family="IBM Plex Mono, monospace" font-size="11" fill="currentColor">vnet-spoke-tpa-prd</text>
+        <text x="34" y="334" font-family="IBM Plex Mono, monospace" font-size="12.5" font-weight="600" fill="var(--azure)">172.25.96.0/20</text>
+
+        <rect x="20" y="357" width="180" height="58" rx="6" fill="var(--surface-2)" stroke="var(--line)"></rect>
+        <text x="34" y="379" font-family="IBM Plex Mono, monospace" font-size="11" fill="currentColor">vnet-spoke-vitea</text>
+        <text x="34" y="400" font-family="IBM Plex Mono, monospace" font-size="12.5" font-weight="600" fill="var(--azure)">172.25.176.0/20</text>
+
+        <text x="20" y="438" font-family="IBM Plex Sans, sans-serif" font-size="11.5" fill="var(--muted)">+ 13 more spokes, all identical</text>
+        <text x="20" y="454" font-family="IBM Plex Sans, sans-serif" font-size="11.5" fill="var(--muted)">in their own subscriptions</text>
+
+        <!-- ===== Hub container ===== -->
+        <text x="300" y="133" font-family="IBM Plex Sans, sans-serif" font-size="12.5" font-weight="600" fill="currentColor">Secured virtual hub — mercyhealth-vhub-northcentralus · 172.25.0.0/24 · Standard</text>
+        <rect x="300" y="145" width="680" height="395" rx="10" fill="none" stroke="var(--line)" stroke-width="1.5" stroke-dasharray="6 4"></rect>
+
+        <!-- hub router -->
+        <rect x="335" y="230" width="150" height="180" rx="6" fill="var(--surface-2)" stroke="var(--line)"></rect>
+        <text x="410" y="300" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="12.5" font-weight="600" fill="currentColor">Virtual hub</text>
+        <text x="410" y="317" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="12.5" font-weight="600" fill="currentColor">router</text>
+        <text x="410" y="339" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="var(--muted)">ASN 65515</text>
+
+        <!-- azure firewall -->
+        <rect x="575" y="262" width="230" height="116" rx="6" fill="var(--surface)" stroke="var(--fw)" stroke-width="2"></rect>
+        <text x="690" y="292" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="14" font-weight="600" fill="var(--fw)">Azure Firewall</text>
+        <text x="690" y="313" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="var(--muted)">mercyhealth-azfw-northcentralus</text>
+        <text x="690" y="333" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="currentColor">172.25.0.132</text>
+        <text x="690" y="356" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="10.5" fill="var(--muted)">Standard · no availability zones</text>
+
+        <!-- vpn gateway -->
+        <rect x="875" y="278" width="90" height="84" rx="6" fill="var(--surface-2)" stroke="var(--hy)" stroke-width="1.5"></rect>
+        <text x="920" y="308" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="12" font-weight="600" fill="currentColor">VPN</text>
+        <text x="920" y="324" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="12" font-weight="600" fill="currentColor">Gateway</text>
+        <text x="920" y="344" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="var(--muted)">1 unit</text>
+
+        <!-- routing intent note (bottom of hub) -->
+        <text x="322" y="486" font-family="IBM Plex Sans, sans-serif" font-size="11.5" font-weight="600" fill="currentColor">Routing Intent — both policies next-hop the firewall</text>
+        <text x="322" y="506" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="var(--muted)">DefaultRouteTable   0.0.0.0/0 → AzFW</text>
+        <text x="322" y="523" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="var(--muted)">10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16 → AzFW</text>
+
+        <!-- ===== On-premises ===== -->
+        <rect x="1040" y="270" width="140" height="100" rx="7" fill="var(--surface-2)" stroke="var(--hy)" stroke-width="1.5"></rect>
+        <text x="1110" y="296" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="13" font-weight="600" fill="currentColor">On-premises</text>
+        <text x="1110" y="318" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="currentColor">10.0.0.0/8</text>
+        <text x="1110" y="336" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="currentColor">192.168.0.0/16</text>
+        <text x="1110" y="356" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="var(--muted)">198.190.160.161</text>
+
+        <!-- ===== FLOWS ===== -->
+        <!-- spokes into router -->
+        <line x1="200" y1="254" x2="329" y2="254" stroke="var(--ew)" stroke-width="2" marker-end="url(#aEW)"></line>
+        <line x1="200" y1="320" x2="329" y2="320" stroke="var(--ew)" stroke-width="2" marker-end="url(#aEW)"></line>
+        <line x1="200" y1="386" x2="329" y2="386" stroke="var(--ew)" stroke-width="2" marker-end="url(#aEW)"></line>
+        <text x="264" y="222" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="10.5" font-weight="600" fill="var(--ew)">×16 connections</text>
+        <text x="264" y="236" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="9.5" fill="var(--muted)">peered to hub</text>
+
+        <!-- router to firewall -->
+        <line x1="485" y1="320" x2="569" y2="320" stroke="var(--ew)" stroke-width="2" marker-end="url(#aEW)"></line>
+        <text x="527" y="309" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="10" fill="var(--muted)">all flows</text>
+
+        <!-- firewall up to internet : NORTH-SOUTH -->
+        <line x1="690" y1="262" x2="690" y2="96" stroke="var(--ns)" stroke-width="2.5" marker-end="url(#aNS)"></line>
+        <text x="704" y="164" font-family="IBM Plex Sans, sans-serif" font-size="11" font-weight="600" fill="var(--ns)">north–south</text>
+        <text x="704" y="180" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--muted)">0.0.0.0/0 egress</text>
+
+        <!-- firewall to vpn gw : HYBRID -->
+        <line x1="805" y1="320" x2="869" y2="320" stroke="var(--hy)" stroke-width="2" marker-end="url(#aHY)"></line>
+        <!-- vpn gw to on-prem -->
+        <line x1="965" y1="320" x2="1034" y2="320" stroke="var(--hy)" stroke-width="2.5" marker-end="url(#aHY)" marker-start="url(#aHY)"></line>
+        <text x="1000" y="298" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="10.5" font-weight="600" fill="var(--hy)">IPsec</text>
+        <text x="1000" y="311" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9" fill="var(--muted)">IKEv2</text>
+
+        <!-- east-west hairpin -->
+        <path d="M 660 378 L 660 448 L 440 448 L 440 416" fill="none" stroke="var(--ew)" stroke-width="2.5"
+              stroke-dasharray="7 4" marker-end="url(#aEW)"></path>
+        <text x="550" y="440" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="11" font-weight="600" fill="var(--ew)">east–west hairpin — back to another spoke</text>
+      </svg>
+
+      <div class="flowkey">
+        <span style="color:var(--ew)"><i class="dash"></i>East–west · spoke to spoke, via the hub</span>
+        <span style="color:var(--ns)"><i class="dash"></i>North–south · internet egress</span>
+        <span style="color:var(--hy)"><i class="dash"></i>Hybrid · on-premises over IPsec</span>
+      </div>
+
+      <figcaption>Every one of the 16 spokes has exactly one peering, and it points at the managed hub VNet — there
+        are no spoke-to-spoke peerings anywhere in the tenant. Combined with Routing Intent, that means a packet from
+        <code>vnet-spoke-tpa-prd</code> to <code>vnet-spoke-appdev-prd</code> leaves its VNet, reaches the hub router,
+        is handed to the firewall, and only then returns to the hub for delivery. There is no path that avoids
+        inspection.</figcaption>
+    </figure>
+  </section>
+
+  <section>
+    <h2>Path by path</h2>
+    <p class="note">What each flow class actually traverses, and whether the firewall sees it.</p>
+    <div class="tblwrap">
+      <table class="tbl">
+        <thead>
+          <tr><th>Flow</th><th>Path</th><th>Inspected</th><th>Basis</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Spoke → Internet</strong><br><span style="color:var(--muted);font-size:12px">north–south egress</span></td>
+            <td class="path">spoke → hub router → <span style="color:var(--fw)">AzFW</span> → SNAT 20.25.217.244 → internet</td>
+            <td><span class="pill yes">Yes</span></td>
+            <td>Routing Intent <code>Internet</code> policy</td>
+          </tr>
+          <tr>
+            <td><strong>Internet → Spoke</strong><br><span style="color:var(--muted);font-size:12px">north–south ingress</span></td>
+            <td class="path">no DNAT rule collection exists — no inbound path published through the hub firewall</td>
+            <td><span class="pill no">No path</span></td>
+            <td>Policy has 3 rule groups, none NAT; <code>AZFWNatRule</code> has 0 rows all-time</td>
+          </tr>
+          <tr>
+            <td><strong>Spoke → Spoke</strong><br><span style="color:var(--muted);font-size:12px">east–west</span></td>
+            <td class="path">spoke → hub router → <span style="color:var(--fw)">AzFW</span> → hub router → spoke</td>
+            <td><span class="pill yes">Yes</span></td>
+            <td>Routing Intent <code>PrivateTraffic</code>; zero spoke-to-spoke peerings</td>
+          </tr>
+          <tr>
+            <td><strong>Spoke → On-prem</strong><br><span style="color:var(--muted);font-size:12px">hybrid outbound</span></td>
+            <td class="path">spoke → hub router → <span style="color:var(--fw)">AzFW</span> → VPN gateway → IPsec → 10.0.0.0/8</td>
+            <td><span class="pill yes">Yes</span></td>
+            <td><code>PrivateTraffic</code> covers 10/8 and 192.168/16</td>
+          </tr>
+          <tr>
+            <td><strong>On-prem → Spoke</strong><br><span style="color:var(--muted);font-size:12px">hybrid inbound</span></td>
+            <td class="path">IPsec → VPN gateway → hub router → <span style="color:var(--fw)">AzFW</span> → spoke</td>
+            <td><span class="pill yes">Yes</span></td>
+            <td>Both VPN connections associated to DefaultRouteTable</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>The sixteen spokes</h2>
+    <p class="note">One VNet per subscription, every one carved from <code>172.25.0.0/16</code> and attached to the
+      hub by a single connection. No VNet exists in the connectivity subscription itself — the hub is a
+      Microsoft-managed VNet, which is why it holds no customer address space beyond its own /24.</p>
+
+    <div class="fam">
+      <div class="famhead"><h3>Connect Application</h3><span class="c">/20 each</span></div>
+      <div class="grid">
+        <div class="vnet"><div class="top"><span class="env dev">dev</span><span class="nm">vnet-spoke-appdev-dev</span></div><div class="cidr">172.25.16.0/20</div><div class="sub">dt-dev-app-oeqrq2jxadm36</div></div>
+        <div class="vnet"><div class="top"><span class="env tst">tst</span><span class="nm">vnet-spoke-appdev-tst</span></div><div class="cidr">172.25.32.0/20</div><div class="sub">dt-tst-app-oeqrq2jxadm36</div></div>
+        <div class="vnet"><div class="top"><span class="env prd">prd</span><span class="nm">vnet-spoke-appdev-prd</span></div><div class="cidr">172.25.48.0/20</div><div class="sub">dt-prd-app-oeqrq2jxadm36</div></div>
+      </div>
+    </div>
+
+    <div class="fam">
+      <div class="famhead"><h3>TPA Application</h3><span class="c">/20 each · no shr VNet</span></div>
+      <div class="grid">
+        <div class="vnet"><div class="top"><span class="env dev">dev</span><span class="nm">vnet-spoke-tpa-dev</span></div><div class="cidr">172.25.64.0/20</div><div class="sub">dt-dev-tpa-oeqrq2jxadm36</div></div>
+        <div class="vnet"><div class="top"><span class="env tst">tst</span><span class="nm">vnet-spoke-tpa-tst</span></div><div class="cidr">172.25.80.0/20</div><div class="sub">dt-tst-tpa-oeqrq2jxadm36</div></div>
+        <div class="vnet"><div class="top"><span class="env prd">prd</span><span class="nm">vnet-spoke-tpa-prd</span></div><div class="cidr">172.25.96.0/20</div><div class="sub">dt-prd-tpa-oeqrq2jxadm36</div></div>
+      </div>
+    </div>
+
+    <div class="fam">
+      <div class="famhead"><h3>Microsites</h3><span class="c">shr is a /24, rest /20</span></div>
+      <div class="grid">
+        <div class="vnet"><div class="top"><span class="env shr">shr</span><span class="nm">vnet-spoke-microsites-shr</span></div><div class="cidr">172.25.112.0/24</div><div class="sub">dt-shr-microsites-oeqrq2jxadm36</div></div>
+        <div class="vnet"><div class="top"><span class="env dev">dev</span><span class="nm">vnet-spoke-microsites-dev</span></div><div class="cidr">172.25.128.0/20</div><div class="sub">dt-dev-microsites-oeqrq2jxadm36</div></div>
+        <div class="vnet"><div class="top"><span class="env tst">tst</span><span class="nm">vnet-spoke-microsites-tst</span></div><div class="cidr">172.25.144.0/20</div><div class="sub">dt-tst-microsites-oeqrq2jxadm36</div></div>
+        <div class="vnet"><div class="top"><span class="env prd">prd</span><span class="nm">vnet-spoke-microsites-prd</span></div><div class="cidr">172.25.160.0/20</div><div class="sub">dt-prd-microsites-oeqrq2jxadm36</div></div>
+      </div>
+    </div>
+
+    <div class="fam">
+      <div class="famhead"><h3>Data and Analytics</h3><span class="c">/24 each — smallest spokes</span></div>
+      <div class="grid">
+        <div class="vnet"><div class="top"><span class="env dev">dev</span><span class="nm">vnet-spoke-dna-dev</span></div><div class="cidr">172.25.8.0/24</div><div class="sub">dt-dev-analytics-oeqrq2jxadm36</div></div>
+        <div class="vnet"><div class="top"><span class="env tst">tst</span><span class="nm">vnet-spoke-dna-tst</span></div><div class="cidr">172.25.9.0/24</div><div class="sub">dt-tst-analytics-oeqrq2jxadm36</div></div>
+        <div class="vnet"><div class="top"><span class="env prd">prd</span><span class="nm">vnet-spoke-dna-prd</span></div><div class="cidr">172.25.10.0/24</div><div class="sub">dt-prd-analytics-oeqrq2jxadm36</div></div>
+      </div>
+    </div>
+
+    <div class="fam">
+      <div class="famhead"><h3>Platform and workload</h3><span class="c">mixed</span></div>
+      <div class="grid">
+        <div class="vnet"><div class="top"><span class="env prd">prd</span><span class="nm">vnet-spoke-vmss-azuredevops</span></div><div class="cidr">172.25.1.0/25</div><div class="sub">dt-prd-azuredevops-oeqrq2jxadm36</div></div>
+        <div class="vnet"><div class="top"><span class="env prd">prd</span><span class="nm">vnet-spoke-mgt</span></div><div class="cidr">172.25.13.0/24</div><div class="sub">dt-prd-management-oeqrq2jxadm36</div></div>
+        <div class="vnet"><div class="top"><span class="env prd">prd</span><span class="nm">vnet-spoke-vitea</span></div><div class="cidr">172.25.176.0/20</div><div class="sub">dt-prd-vitea-oeqrq2jxadm36</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>What the fabric shows</h2>
+    <p class="note">Structural and configuration findings from the live control plane and 30 days of gateway metrics.
+      Nothing here has been changed.</p>
+
+    <div class="findings">
+
+      <div class="finding">
+        <div class="sev high">Review</div>
+        <div>
+          <h3>The two VPN tunnels terminate on the same on-premises IP</h3>
+          <p>Site <code>Azure-Mercyhealth</code> and site <code>MHTC-HA</code> both point at
+            <code>198.190.160.161</code>. A second connection to the same physical endpoint adds no path diversity —
+            if that device, its circuit, or its address becomes unreachable, both tunnels fail together. The name
+            says HA; the configuration does not deliver it.</p>
+          <p>Real redundancy needs a second endpoint address, ideally on separate hardware and a separate circuit.
+            This is the single largest availability gap in the hybrid path.</p>
+        </div>
+      </div>
+
+      <div class="finding">
+        <div class="sev unk">Unknown</div>
+        <div>
+          <h3>The <code>Mercyhealth</code> tunnel has never reported a byte in 30 days</h3>
+          <p>Azure Monitor returns exactly one tunnel dimension for this gateway — <code>JVL-Egress</code>. The
+            <code>Mercyhealth</code> link on <code>Connection-Azure-Mercyhealth</code> produces no timeseries at all,
+            and its ARM object returns a persistent <code>GatewayError</code> on every read attempt.</p>
+          <p>That combination is consistent with a tunnel that has never established, but I could not read its state
+            directly to confirm it — so this is genuinely unknown rather than confirmed down. The portal's VPN
+            connection blade, or an Entra-side gateway diagnostic, would settle it.</p>
+        </div>
+      </div>
+
+      <div class="finding">
+        <div class="sev high">Review</div>
+        <div>
+          <h3>ARM reports the live tunnel's status three different ways</h3>
+          <p>Within minutes: the gateway object said <code>NotConnected</code> with zero counters; the connection
+            object said <code>Connected</code> with 232 MB cumulative; Azure Monitor showed zero bytes for six hours
+            but 68 MB across 16 active days in the last 30.</p>
+          <p>The metrics are the trustworthy view. Reading them together: <code>JVL-Egress</code> is a working tunnel
+            carrying very little — a few MB on active days, silent for eleven straight days to 30 August, active
+            31 August through 2 September, and idle again today. Treat the control-plane status fields on this
+            gateway as unreliable.</p>
+        </div>
+      </div>
+
+      <div class="finding">
+        <div class="sev high">Review</div>
+        <div>
+          <h3>The firewall is not zone-redundant, and everything depends on it</h3>
+          <p><code>mercyhealth-azfw-northcentralus</code> has no availability zones configured. Because Routing
+            Intent sends east-west, north-south and hybrid traffic all through this one instance, its availability
+            zone is the availability zone of the entire fabric — a zone failure in North Central US takes out
+            spoke-to-spoke traffic as well as internet egress.</p>
+          <p>Adding zones to a hub firewall is a redeploy, not a setting, so this is a planned change rather than a
+            quick fix. Worth sizing against the recovery objectives for the clinical workloads behind it.</p>
+        </div>
+      </div>
+
+      <div class="finding">
+        <div class="sev">Note</div>
+        <div>
+          <h3>Standard tier means no IDPS and no TLS inspection</h3>
+          <p>Both the firewall and its policy are Standard. Threat intelligence is set to <code>Alert</code> — it
+            flags known-bad destinations but does not block them. IDPS and TLS inspection are Premium-only and are
+            therefore absent.</p>
+          <p>For a healthcare estate this is worth a deliberate decision rather than a default. Moving threat intel
+            to <code>Alert and Deny</code> is a policy toggle; Premium is a tier change with cost and latency
+            implications.</p>
+        </div>
+      </div>
+
+      <div class="finding">
+        <div class="sev">Note</div>
+        <div>
+          <h3>All egress leaves through a single public IP</h3>
+          <p>Every spoke's internet traffic SNATs to <code>20.25.217.244</code>. That is clean for allow-listing at
+            partner firewalls, but it concentrates SNAT port capacity on one address and means one shared reputation
+            for all sixteen spokes — dev traffic and production clinical traffic share an egress identity.</p>
+          <p>The firewall's own deny logs already show heavy volume to developer endpoints such as
+            <code>main.vscode-cdn.net</code>, so dev egress is real and non-trivial.</p>
+        </div>
+      </div>
+
+      <div class="finding">
+        <div class="sev">Note</div>
+        <div>
+          <h3>IPsec is negotiated without perfect forward secrecy</h3>
+          <p>The <code>JVL-Egress</code> link uses IKEv2 with AES-256, SHA-256 and DH Group 14 for phase 1 — sound
+            choices — but phase 2 sets <code>PFS None</code> with an 8-hour SA lifetime. Without PFS, compromise of
+            the long-term key exposes previously captured traffic from that SA.</p>
+          <p>Enabling a PFS group requires a matching change on the Cisco side, so it is a coordinated change, not a
+            one-sided toggle.</p>
+        </div>
+      </div>
+
+      <div class="finding">
+        <div class="sev">Note</div>
+        <div>
+          <h3>Six subscriptions have no VNet at all</h3>
+          <p><code>dt-shr-tpa</code>, <code>dt-workday</code>, <code>dt-prd-deployments-001</code>,
+            <code>dt-prd-logging</code>, <code>dt-sandbox</code> and the connectivity subscription itself hold no
+            virtual network. For most that is expected — logging and deployments are control-plane workloads, and
+            the hub VNet is Microsoft-managed.</p>
+          <p><code>dt-shr-tpa</code> is the odd one: the other three TPA environments each have a spoke, and the
+            shared one does not, even though Microsites has a shared spoke. Either the workload does not need one
+            or it was never built.</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <footer>
+    <p><strong>Scope and evidence.</strong> Read-only. Topology from the ARM Network provider (virtualWans,
+      virtualHubs, routingIntent, hubRouteTables, hubVirtualNetworkConnections, azureFirewalls, firewallPolicies,
+      vpnGateways, vpnSites, api-version 2023-09-01), VNet inventory and peerings from Azure Resource Graph across
+      all 22 subscriptions, and tunnel traffic from Azure Monitor metrics over 30 days. Read as
+      <code>hdesai@mhemail.org</code> at 14:24 UTC on 3 September 2026.</p>
+    <p><strong>Not covered.</strong> Firewall rule contents (only the three collection group names were read),
+      NSGs and UDRs inside the spokes, private endpoints and Private DNS zones, subnet-level design, Front Door or
+      Application Gateway if any, and RBAC. No shared keys, certificates or secrets were retrieved.</p>
+    <p><strong>Withheld.</strong> Subscription and tenant GUIDs are not shown. Public IPs and the on-premises
+      endpoint address are included because they are operationally necessary to read the diagram; treat this page
+      as internal.</p>
+  </footer>
+
+</div>

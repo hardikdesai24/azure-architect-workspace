@@ -1,0 +1,310 @@
+[
+    {
+      "cloudName": "AzureCloud",
+      "homeTenantId": "7d689bf5-26f6-44a2-b080-61689eff65a6",
+      "id": "a0852105-5c04-4827-8336-dde82949192a",
+      "isDefault": false,
+      "managedByTenants": [],
+      "name": "dt-prd-vitea-oeqrq2jxadm36",
+      "state": "Enabled",
+      "tenantId": "7d689bf5-26f6-44a2-b080-61689eff65a6",
+      "user": {
+        "name": "hdesai@mhemail.org",
+        "type": "user"
+      }
+    },
+    {
+      "cloudName": "AzureCloud",
+      "homeTenantId": "7d689bf5-26f6-44a2-b080-61689eff65a6",
+      "id": "cc759976-412c-4385-bedb-a6a6e2f0ac37",
+      "isDefault": false,
+      "managedByTenants": [],
+      "name": "dt-tst-app-oeqrq2jxadm36",
+      "state": "Enabled",
+      "tenantId": "7d689bf5-26f6-44a2-b080-61689eff65a6",
+      "user": {
+        "name": "hdesai@mhemail.org",
+        "type": "user"
+      }
+    },
+    {
+      "cloudName": "AzureCloud",
+      "homeTenantId": "7d689bf5-26f6-44a2-b080-61689eff65a6",
+      "id": "ff34313b-8a89-4e86-bfcb-331b03ff6205",
+      "isDefault": false,
+      "managedByTenants": [],
+      "name": "dt-prd-app-oeqrq2jxadm36",
+      "state": "Enabled",
+      "tenantId": "7d689bf5-26f6-44a2-b080-61689eff65a6",
+      "user": {
+        "name": "hdesai@mhemail.org",
+        "type": "user"
+      }
+    },
+    {
+      "cloudName": "AzureCloud",
+      "homeTenantId": "7d689bf5-26f6-44a2-b080-61689eff65a6",
+      "id": "eedbfd35-f6c7-4ac2-9730-4d0c4be52821",
+      "isDefault": true,
+      "managedByTenants": [],
+      "name": "dt-dev-app-oeqrq2jxadm36",
+      "state": "Enabled",
+      "tenantId": "7d689bf5-26f6-44a2-b080-61689eff65a6",
+      "user": {
+        "name": "hdesai@mhemail.org",
+        "type": "user"
+      }
+    },
+    {
+      "cloudName": "AzureCloud",
+      "homeTenantId": "7d689bf5-26f6-44a2-b080-61689eff65a6",
+      "id": "1c23d2bb-6d49-4dfb-8ec6-867ca3e3802f",
+      "isDefault": false,
+      "managedByTenants": [],
+      "name": "dt-shr-microsites-oeqrq2jxadm36",
+      "state": "Enabled",
+      "tenantId": "7d689bf5-26f6-44a2-b080-61689eff65a6",
+      "user": {
+        "name": "hdesai@mhemail.org",
+        "type": "user"
+      }
+    },
+    {
+      "cloudName": "AzureCloud",
+      "homeTenantId": "7d689bf5-26f6-44a2-b080-61689eff65a6",
+      "id": "93ad3e04-0e66-411e-a795-c73bc4a1cf71",
+      "isDefault": false,
+      "managedByTenants": [],
+      "name": "dt-tst-microsites-oeqrq2jxadm36",
+      "state": "Enabled",
+      "tenantId": "7d689bf5-26f6-44a2-b080-61689eff65a6",
+      "user": {
+        "name": "hdesai@mhemail.org",
+        "type": "user"
+      }
+    },
+    {
+      "cloudName": "AzureCloud",
+      "homeTenantId": "7d689bf5-26f6-44a2-b080-61689eff65a6",
+      "id": "0fbe5fc4-b340-4470-b48f-7560c3931f0c",
+      "isDefault": false,
+      "managedByTenants": [],
+      "name": "dt-dev-microsites-oeqrq2jxadm36",
+      "state": "Enabled",
+      "tenantId": "7d689bf5-26f6-44a2-b080-61689eff65a6",
+      "user": {
+        "name": "hdesai@mhemail.org",
+        "type": "user"
+      }
+    },
+    {
+      "cloudName": "AzureCloud",
+      "homeTenantId": "7d689bf5-26f6-44a2-b080-61689eff65a6",
+      "id": "fea99958-8b50-46d3-a70f-6663341612e3",
+      "isDefault": false,
+      "managedByTenants": [],
+      "name": "dt-prd-microsites-oeqrq2jxadm36",
+      "state": "Enabled",
+      "tenantId": "7d689bf5-26f6-44a2-b080-61689eff65a6",
+      "user": {
+        "name": "hdesai@mhemail.org",
+        "type": "user"
+      }
+    },
+    {
+      "cloudName": "AzureCloud",
+      "homeTenantId": "7d689bf5-26f6-44a2-b080-61689eff65a6",
+      "id": "13c0fd84-e621-4d47-8544-af10962929e1",
+      "isDefault": false,
+      "managedByTenants": [],
+      "name": "dt-shr-tpa-oeqrq2jxadm36",
+      "state": "Enabled",
+      "tenantId": "7d689bf5-26f6-44a2-b080-61689eff65a6",
+      "user": {
+        "name": "hdesai@mhemail.org",
+        "type": "user"
+      }
+    },
+    {
+      "cloudName": "AzureCloud",
+      "homeTenantId": "7d689bf5-26f6-44a2-b080-61689eff65a6",
+      "id": "102d3a7b-6457-4ac2-8960-77f637423fbc",
+      "isDefault": false,
+      "managedByTenants": [],
+      "name": "dt-dev-tpa-oeqrq2jxadm36",
+      "state": "Enabled",
+      "tenantId": "7d689bf5-26f6-44a2-b080-61689eff65a6",
+      "user": {
+        "name": "hdesai@mhemail.org",
+        "type": "user"
+      }
+    },
+    {
+      "cloudName": "AzureCloud",
+      "homeTenantId": "7d689bf5-26f6-44a2-b080-61689eff65a6",
+      "id": "fbee79f0-e956-4894-82f5-7427197247e4",
+      "isDefault": false,
+      "managedByTenants": [],
+      "name": "dt-tst-tpa-oeqrq2jxadm36",
+      "state": "Enabled",
+      "tenantId": "7d689bf5-26f6-44a2-b080-61689eff65a6",
+      "user": {
+        "name": "hdesai@mhemail.org",
+        "type": "user"
+      }
+    },
+    {
+      "cloudName": "AzureCloud",
+      "homeTenantId": "7d689bf5-26f6-44a2-b080-61689eff65a6",
+      "id": "65d61542-8414-46cc-b9c7-c736ac661a03",
+      "isDefault": false,
+      "managedByTenants": [],
+      "name": "dt-prd-tpa-oeqrq2jxadm36",
+      "state": "Enabled",
+      "tenantId": "7d689bf5-26f6-44a2-b080-61689eff65a6",
+      "user": {
+        "name": "hdesai@mhemail.org",
+        "type": "user"
+      }
+    },
+    {
+      "cloudName": "AzureCloud",
+      "homeTenantId": "7d689bf5-26f6-44a2-b080-61689eff65a6",
+      "id": "94d46a94-e31f-4477-a819-750a26bbcc31",
+      "isDefault": false,
+      "managedByTenants": [],
+      "name": "dt-prd-deployments-001",
+      "state": "Enabled",
+      "tenantId": "7d689bf5-26f6-44a2-b080-61689eff65a6",
+      "user": {
+        "name": "hdesai@mhemail.org",
+        "type": "user"
+      }
+    },
+    {
+      "cloudName": "AzureCloud",
+      "homeTenantId": "7d689bf5-26f6-44a2-b080-61689eff65a6",
+      "id": "41b63412-772a-4bec-afa9-84daa1a8ff4f",
+      "isDefault": false,
+      "managedByTenants": [],
+      "name": "dt-dev-analytics-oeqrq2jxadm36",
+      "state": "Enabled",
+      "tenantId": "7d689bf5-26f6-44a2-b080-61689eff65a6",
+      "user": {
+        "name": "hdesai@mhemail.org",
+        "type": "user"
+      }
+    },
+    {
+      "cloudName": "AzureCloud",
+      "homeTenantId": "7d689bf5-26f6-44a2-b080-61689eff65a6",
+      "id": "3eb48e6f-0c9d-45f1-b952-9525a9c384a6",
+      "isDefault": false,
+      "managedByTenants": [],
+      "name": "dt-tst-analytics-oeqrq2jxadm36",
+      "state": "Enabled",
+      "tenantId": "7d689bf5-26f6-44a2-b080-61689eff65a6",
+      "user": {
+        "name": "hdesai@mhemail.org",
+        "type": "user"
+      }
+    },
+    {
+      "cloudName": "AzureCloud",
+      "homeTenantId": "7d689bf5-26f6-44a2-b080-61689eff65a6",
+      "id": "100cd295-ba47-42a4-8270-60cefb42e7c0",
+      "isDefault": false,
+      "managedByTenants": [],
+      "name": "dt-prd-analytics-oeqrq2jxadm36",
+      "state": "Enabled",
+      "tenantId": "7d689bf5-26f6-44a2-b080-61689eff65a6",
+      "user": {
+        "name": "hdesai@mhemail.org",
+        "type": "user"
+      }
+    },
+    {
+      "cloudName": "AzureCloud",
+      "homeTenantId": "7d689bf5-26f6-44a2-b080-61689eff65a6",
+      "id": "390ca6ef-c484-402a-99b0-911373b5d5c2",
+      "isDefault": false,
+      "managedByTenants": [],
+      "name": "dt-workday-oeqrq2jxadm36",
+      "state": "Enabled",
+      "tenantId": "7d689bf5-26f6-44a2-b080-61689eff65a6",
+      "user": {
+        "name": "hdesai@mhemail.org",
+        "type": "user"
+      }
+    },
+    {
+      "cloudName": "AzureCloud",
+      "homeTenantId": "7d689bf5-26f6-44a2-b080-61689eff65a6",
+      "id": "818a8b62-e350-473b-811c-1b6fa4eb2432",
+      "isDefault": false,
+      "managedByTenants": [],
+      "name": "dt-prd-connectivity-oeqrq2jxadm36",
+      "state": "Enabled",
+      "tenantId": "7d689bf5-26f6-44a2-b080-61689eff65a6",
+      "user": {
+        "name": "hdesai@mhemail.org",
+        "type": "user"
+      }
+    },
+    {
+      "cloudName": "AzureCloud",
+      "homeTenantId": "7d689bf5-26f6-44a2-b080-61689eff65a6",
+      "id": "96a01662-0cde-4fd8-a7a6-e9944a3afd78",
+      "isDefault": false,
+      "managedByTenants": [],
+      "name": "dt-prd-logging-oeqrq2jxadm36",
+      "state": "Enabled",
+      "tenantId": "7d689bf5-26f6-44a2-b080-61689eff65a6",
+      "user": {
+        "name": "hdesai@mhemail.org",
+        "type": "user"
+      }
+    },
+    {
+      "cloudName": "AzureCloud",
+      "homeTenantId": "7d689bf5-26f6-44a2-b080-61689eff65a6",
+      "id": "f8ba43e3-7312-4d34-a4d7-c7ca3e5a1cbd",
+      "isDefault": false,
+      "managedByTenants": [],
+      "name": "dt-prd-management-oeqrq2jxadm36",
+      "state": "Enabled",
+      "tenantId": "7d689bf5-26f6-44a2-b080-61689eff65a6",
+      "user": {
+        "name": "hdesai@mhemail.org",
+        "type": "user"
+      }
+    },
+    {
+      "cloudName": "AzureCloud",
+      "homeTenantId": "7d689bf5-26f6-44a2-b080-61689eff65a6",
+      "id": "ba0ae378-9e31-4c11-b519-386d59ae0797",
+      "isDefault": false,
+      "managedByTenants": [],
+      "name": "dt-prd-azuredevops-oeqrq2jxadm36",
+      "state": "Enabled",
+      "tenantId": "7d689bf5-26f6-44a2-b080-61689eff65a6",
+      "user": {
+        "name": "hdesai@mhemail.org",
+        "type": "user"
+      }
+    },
+    {
+      "cloudName": "AzureCloud",
+      "homeTenantId": "7d689bf5-26f6-44a2-b080-61689eff65a6",
+      "id": "c6205079-889a-43ad-855a-0bc8cfe89422",
+      "isDefault": false,
+      "managedByTenants": [],
+      "name": "dt-sandbox",
+      "state": "Enabled",
+      "tenantId": "7d689bf5-26f6-44a2-b080-61689eff65a6",
+      "user": {
+        "name": "hdesai@mhemail.org",
+        "type": "user"
+      }
+    }
+  ]
