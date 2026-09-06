@@ -1,2 +1,7 @@
 /.az-cli-empty/virtual-wan/
 /venv/
+
+# Bulk raw Azure Monitor metric exports (multi-MB five-minute samples).
+# The analyzable *-summary.json companions stay tracked.
+/Output/*-data.json
+/Output/2026-09-05-app-service-memory-sizing-7d.json

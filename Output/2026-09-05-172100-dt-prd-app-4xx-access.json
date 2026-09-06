@@ -1,0 +1,149 @@
+[
+  {
+    "app": "app-portal-prod-ncus",
+    "restrictions": {
+      "defaultAction": "Deny",
+      "rules": [
+        {
+          "action": "Allow",
+          "name": "apim-prod",
+          "priority": 100,
+          "tag": "Default"
+        },
+        {
+          "action": "Deny",
+          "name": "Deny all",
+          "priority": 2147483647,
+          "tag": null
+        }
+      ]
+    },
+    "observedAtUtc": "2026-09-05T11:54:34.9524264Z"
+  },
+  {
+    "app": "app-hand-hygiene-prod-ncus",
+    "restrictions": {
+      "defaultAction": "Deny",
+      "rules": [
+        {
+          "action": "Allow",
+          "name": "APIM",
+          "priority": 100,
+          "tag": "Default"
+        },
+        {
+          "action": "Deny",
+          "name": "Deny all",
+          "priority": 2147483647,
+          "tag": null
+        }
+      ]
+    },
+    "observedAtUtc": "2026-09-05T11:54:36.0796706Z"
+  },
+  {
+    "app": "app-HHS-prod-ncus",
+    "restrictions": {
+      "defaultAction": "Deny",
+      "rules": [
+        {
+          "action": "Allow",
+          "name": "APIM",
+          "priority": 100,
+          "tag": "Default"
+        },
+        {
+          "action": "Deny",
+          "name": "Deny all",
+          "priority": 2147483647,
+          "tag": null
+        }
+      ]
+    },
+    "observedAtUtc": "2026-09-05T11:54:37.4959196Z"
+  },
+  {
+    "app": "app-audit-log-prod-ncus",
+    "restrictions": {
+      "defaultAction": "Deny",
+      "rules": [
+        {
+          "action": "Allow",
+          "name": "apim-prod",
+          "priority": 100,
+          "tag": "Default"
+        },
+        {
+          "action": "Deny",
+          "name": "Deny all",
+          "priority": 2147483647,
+          "tag": null
+        }
+      ]
+    },
+    "observedAtUtc": "2026-09-05T11:54:38.6029102Z"
+  },
+  {
+    "app": "app-labor-pool-prod-ncus",
+    "restrictions": {
+      "defaultAction": "Deny",
+      "rules": [
+        {
+          "action": "Allow",
+          "name": "APIM",
+          "priority": 100,
+          "tag": "Default"
+        },
+        {
+          "action": "Deny",
+          "name": "Deny all",
+          "priority": 2147483647,
+          "tag": null
+        }
+      ]
+    },
+    "observedAtUtc": "2026-09-05T11:54:39.7052889Z"
+  },
+  {
+    "app": "app-notification-service-prod-ncus",
+    "restrictions": {
+      "defaultAction": "Deny",
+      "rules": [
+        {
+          "action": "Allow",
+          "name": "APIM",
+          "priority": 100,
+          "tag": "Default"
+        },
+        {
+          "action": "Deny",
+          "name": "Deny all",
+          "priority": 2147483647,
+          "tag": null
+        }
+      ]
+    },
+    "observedAtUtc": "2026-09-05T11:54:40.7702764Z"
+  },
+  {
+    "app": "app-PMM-prod-ncus",
+    "restrictions": {
+      "defaultAction": "Deny",
+      "rules": [
+        {
+          "action": "Allow",
+          "name": "APIM",
+          "priority": 100,
+          "tag": "Default"
+        },
+        {
+          "action": "Deny",
+          "name": "Deny all",
+          "priority": 2147483647,
+          "tag": null
+        }
+      ]
+    },
+    "observedAtUtc": "2026-09-05T11:54:41.8272386Z"
+  }
+]

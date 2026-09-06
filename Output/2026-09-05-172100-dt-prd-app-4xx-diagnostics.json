@@ -1,0 +1,58 @@
+[
+  {
+    "app": "app-portal-prod-ncus",
+    "setting": "setbypolicy",
+    "workspace": "mercyhealth-log-analytics",
+    "httpLogsEnabled": [
+      true
+    ]
+  },
+  {
+    "app": "app-hand-hygiene-prod-ncus",
+    "setting": "setbypolicy",
+    "workspace": "mercyhealth-log-analytics",
+    "httpLogsEnabled": [
+      true
+    ]
+  },
+  {
+    "app": "app-HHS-prod-ncus",
+    "setting": "setbypolicy",
+    "workspace": "mercyhealth-log-analytics",
+    "httpLogsEnabled": [
+      true
+    ]
+  },
+  {
+    "app": "app-audit-log-prod-ncus",
+    "setting": "setbypolicy",
+    "workspace": "mercyhealth-log-analytics",
+    "httpLogsEnabled": [
+      true
+    ]
+  },
+  {
+    "app": "app-labor-pool-prod-ncus",
+    "setting": "setbypolicy",
+    "workspace": "mercyhealth-log-analytics",
+    "httpLogsEnabled": [
+      true
+    ]
+  },
+  {
+    "app": "app-notification-service-prod-ncus",
+    "setting": "setbypolicy",
+    "workspace": "mercyhealth-log-analytics",
+    "httpLogsEnabled": [
+      true
+    ]
+  },
+  {
+    "app": "app-PMM-prod-ncus",
+    "setting": "setbypolicy",
+    "workspace": "mercyhealth-log-analytics",
+    "httpLogsEnabled": [
+      true
+    ]
+  }
+]

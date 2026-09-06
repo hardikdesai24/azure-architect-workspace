@@ -1,10 +1,12 @@
 # Application Development, prd — Service Principal / Managed Identity Mapping
 
 **Prepared:** 2026-09-03 17:15 UTC · **Revised:** 2026-09-04, using a tenant-wide Enterprise
-Applications export (`exportServicePrincipals_2026-9-4.csv`, 226 rows) supplied by the user
+Applications export (`exportServicePrincipals_2026-9-4.csv`, 226 rows) and a tenant-wide
+User-Assigned Identities export (`AzureuserAssignedIdentities.csv`, 40 rows), both supplied by
+the user
 **Prepared by:** Claude Code session, workspace `D:\codes\Azure`
 **Class:** 0 — read-only discovery. Nothing was created, modified, or deleted.
-**Companion canvas:** `2026-09-04-spn-identity-mapping-canvas.html`
+**Companion canvas:** `2026-09-04-mercyhealth-appdev-prd-spn-identity-canvas.html`
 
 ---
 
@@ -41,7 +43,7 @@ Three corrections and one new high-severity finding come out of this pass:
 The CSV is a tenant-wide **Enterprise Applications** export — 226 custom app registrations and
 SaaS integrations, columns `id` (Object ID), `displayName`, `appId` (Client ID), plus lifecycle
 metadata. Checked directly: it contains **zero** managed identities (system- or user-assigned) —
-none of the 19 managed identity Object IDs from the original version of this document appear in it.
+none of the 20 managed identity Object IDs from the original version of this document appear in it.
 This is normal; Enterprise Applications exports typically list app registrations, not managed
 identities, which are a distinct Entra ID object type.
 
@@ -83,9 +85,10 @@ each app's data into the Data & Analytics environment.
 | `spn-fabric-tpa-tst` / `spn-fabric-tpa-dev` | `f09f3a8e-...` / `ac5c0855-...` | — | 11/13/2025 / 10/02/2025 | tst / dev counterparts |
 | `tpa-kinde-production` | `a4aba313-3223-4e1b-862f-79967df5e3af` | `ec1c41a6-6d92-4eef-871a-cc731ef208e1` | 12/02/2025 | TPA Application — a **third**, separate identity provider (Kinde, a CIAM platform), alongside the Fabric SPN |
 
-**No Fabric or dedicated app registration was found** for `app-portal-prod-ncus`, `app-audit-log-prod-ncus`,
-`app-hand-hygiene-prod-ncus`, or `app-HHS-prod-ncus` beyond the SharePoint one — those four rely on
-managed identity alone, as the original document described.
+**No registration of any kind was found** for `app-portal-prod-ncus`, `app-audit-log-prod-ncus`, or
+`app-hand-hygiene-prod-ncus` — those three rely on managed identity alone, as the original document
+described. `app-HHS-prod-ncus` does have a registration, `spn-sharepoint-hhs-connect` — just not a
+Fabric one, so it's a SharePoint integration rather than a data-pipeline credential.
 
 **Microsites, confirmed again:** searching the export for `microsites` found `microsites-cms-dev`
 and `microsites-cms-test` only — **no prod entry exists**. This is independent corroboration of the
@@ -113,9 +116,13 @@ kv-labor-pool-prod-ncus · kv-legacy-docs-prod-ncus · kv-medicaid-prod-ncus
 kv-notificatio-prod-ncus · kv-ora-prod-ncus · kv-PMM-prod-ncus · kv-frontdoor-prod-ncus
 ```
 
-It does not appear in the Enterprise Applications export, and a tenant-wide Resource Graph search
-across all 22 subscriptions found no User-Assigned Identity with this Object ID either — so it is
-most likely a **System-Assigned identity on a resource this review did not enumerate** (a deployment
+It does not appear in the Enterprise Applications export. It also does not appear in a
+user-supplied, tenant-wide User-Assigned Identities export — 40 identities across all 22
+subscriptions, checked individually via `az identity show` against this and every other unresolved
+Object ID from this review, row by row, with zero matches. Between the two exports, classic app
+registrations and every user-assigned identity in the tenant are now ruled out, which narrows this
+to one remaining possibility: a **System-Assigned identity on a resource this review did not
+enumerate** (a deployment
 pipeline agent, a Key Vault-adjacent automation resource, or similar), somewhere outside the scope
 of "applications in these three subscriptions." Its name and home resource are **Unknown**.
 

@@ -158,9 +158,9 @@ footer p{margin:0 0 7px;}
 
   <div class="stats">
     <div class="stat"><div class="n">12</div><div class="k">Apps mapped</div><div class="sub">10 Connect + 2 TPA</div></div>
-    <div class="stat"><div class="n">19</div><div class="k">Managed identities</div><div class="sub">system + user-assigned</div></div>
-    <div class="stat"><div class="n">14</div><div class="k">Fabric / app registrations</div><div class="sub">matched to these workloads</div></div>
-    <div class="stat good"><div class="n">2</div><div class="k">RBAC-confirmed Fabric roles</div><div class="sub">of 14 found</div></div>
+    <div class="stat"><div class="n">20</div><div class="k">Managed identities</div><div class="sub">system + user-assigned</div></div>
+    <div class="stat"><div class="n">12</div><div class="k">Fabric / app registrations</div><div class="sub">prod-scoped, both subs</div></div>
+    <div class="stat good"><div class="n">2</div><div class="k">RBAC-confirmed Fabric roles</div><div class="sub">of 12 found</div></div>
     <div class="stat warn"><div class="n">1</div><div class="k">Cross-vault write identity</div><div class="sub">unnamed, all 11 vaults</div></div>
     <div class="stat unknown"><div class="n">18</div><div class="k">Identities still unresolved</div><div class="sub">not in export, not a UAI</div></div>
   </div>
@@ -217,12 +217,12 @@ footer p{margin:0 0 7px;}
         <rect x="60" y="400" width="260" height="76" rx="7" fill="var(--surface)" stroke="var(--fabric)" stroke-width="1.5"></rect>
         <text x="190" y="426" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="12.5" font-weight="600" fill="var(--fabric)">spn-fabric-&lt;name&gt;</text>
         <text x="190" y="443" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="9.5" fill="var(--muted)">(App Registration, classic SPN)</text>
-        <text x="190" y="459" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="8.5" fill="var(--muted)">found for 6 of 10 apps · Entra ID only</text>
+        <text x="190" y="459" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="8.5" fill="var(--muted)">found for 7 of 10 apps · Entra ID only</text>
 
-        <text x="190" y="513" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="10.5" font-weight="600" fill="currentColor">Microsoft Fabric</text>
-        <text x="190" y="530" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="9" fill="var(--muted)">data & analytics extraction</text>
         <line x1="190" y1="476" x2="190" y2="496" stroke="var(--fabric)" stroke-width="2"></line>
-        <rect x="60" y="498" width="260" height="30" rx="6" fill="var(--surface-2)" stroke="var(--line)"></rect>
+        <rect x="60" y="498" width="260" height="54" rx="6" fill="var(--surface-2)" stroke="var(--line)"></rect>
+        <text x="190" y="520" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="10.5" font-weight="600" fill="currentColor">Microsoft Fabric</text>
+        <text x="190" y="538" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="9" fill="var(--muted)">data &amp; analytics extraction</text>
 
         <line x1="320" y1="438" x2="434" y2="220" stroke="var(--fabric)" stroke-width="1.8" marker-end="url(#mArrow-fab)"></line>
         <text x="410" y="330" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="9.5" fill="var(--fabric)" transform="rotate(-52 410 330)">reads secrets</text>
@@ -256,9 +256,9 @@ footer p{margin:0 0 7px;}
 
       <figcaption>
         <p>This is the general shape for one app — the tables below give the exact identity, per app,
-        for all twelve. Not every app has a Fabric registration: `portal`, `audit-log`,
-        `hand-hygiene`, and `HHS` (which has a SharePoint registration instead) rely on managed
-        identity alone.</p>
+        for all twelve. Three apps rely on managed identity alone, with no matching registration
+        found at all: <code>portal</code>, <code>audit-log</code>, <code>hand-hygiene</code>. A
+        fourth, <code>HHS</code>, has a registration too — but a SharePoint one, not a Fabric one.</p>
       </figcaption>
     </figure>
   </section>
@@ -314,11 +314,16 @@ footer p{margin:0 0 7px;}
           <p>Object ID <code>fcfaf24d-f685-4b6e-9827-1c75ebda655e</code> holds <strong>Key Vault
           Secrets Officer</strong> — not just read — on every one of the ten app Key Vaults plus the
           platform <code>kv-frontdoor-prod-ncus</code>. It appears in neither the Enterprise
-          Applications export nor a tenant-wide managed-identity search across all 22 subscriptions.</p>
-          <p>The shape (one identity, write access, everything) matches a CI/CD deployment identity —
-          plausible and unremarkable if that's what it is. But it should have a name and an owner on
-          record regardless. Resolving it needs Graph access or a direct check of Azure DevOps/GitHub
-          service connection configuration.</p>
+          Applications export nor a full tenant-wide User-Assigned Identity export (40 identities,
+          all 22 subscriptions, checked row by row) — which rules out both classic app registrations
+          and every user-assigned identity in the tenant.</p>
+          <p>That narrows it to one remaining possibility: a <strong>System-Assigned</strong> identity
+          on a resource this review didn't enumerate — System-Assigned identities aren't independently
+          listable, so no export catches them. The shape (one identity, write access, everything)
+          still matches a CI/CD deployment resource — plausible and unremarkable if that's what it
+          is. But it should have a name and an owner on record regardless. Resolving it now needs
+          either a resource-by-resource identity sweep beyond Web/sites, ApiManagement, and Sql, or
+          Microsoft Graph access.</p>
         </div>
       </div>
 

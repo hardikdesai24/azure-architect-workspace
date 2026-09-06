@@ -1,0 +1,65 @@
+[
+  {
+    "app": "app-portal-prod-ncus",
+    "metric": "Http404",
+    "bins": 288,
+    "zero": 3,
+    "one": 283,
+    "moreThanOne": 2,
+    "total": 287.0
+  },
+  {
+    "app": "app-notification-service-prod-ncus",
+    "metric": "Http404",
+    "bins": 288,
+    "zero": 1,
+    "one": 287,
+    "moreThanOne": 0,
+    "total": 287.0
+  },
+  {
+    "app": "app-hand-hygiene-prod-ncus",
+    "metric": "Http404",
+    "bins": 288,
+    "zero": 3,
+    "one": 285,
+    "moreThanOne": 0,
+    "total": 285.0
+  },
+  {
+    "app": "app-audit-log-prod-ncus",
+    "metric": "Http404",
+    "bins": 288,
+    "zero": 1,
+    "one": 287,
+    "moreThanOne": 0,
+    "total": 287.0
+  },
+  {
+    "app": "app-PMM-prod-ncus",
+    "metric": "Http401",
+    "bins": 288,
+    "zero": 1,
+    "one": 287,
+    "moreThanOne": 0,
+    "total": 287.0
+  },
+  {
+    "app": "app-labor-pool-prod-ncus",
+    "metric": "Http404",
+    "bins": 288,
+    "zero": 0,
+    "one": 288,
+    "moreThanOne": 0,
+    "total": 288.0
+  },
+  {
+    "app": "app-HHS-prod-ncus",
+    "metric": "Http404",
+    "bins": 288,
+    "zero": 2,
+    "one": 286,
+    "moreThanOne": 0,
+    "total": 286.0
+  }
+]

@@ -1,0 +1,29 @@
+// Purpose: distinguish Always On root requests from other HTTP 4xx traffic.
+// Workspace: mercyhealth-log-analytics, as observed in app diagnostic settings.
+// Scope: the seven named apps in dt-prd-app-oeqrq2jxadm36 only.
+// Required table: AppServiceHTTPLogs.
+// Replace TargetSubscriptionId using the subscription selected in Azure.
+// Output: aggregate counts, status codes, known path classes, caller classes,
+// and observation times. No IPs, identities, query strings or payloads.
+// Validation: not executed successfully; Conditional Access blocked token issuance.
+let TargetSubscriptionId = '<subscription ID for dt-prd-app-oeqrq2jxadm36>';
+let StartUtc = datetime(2026-09-04T05:40:00Z);
+let EndUtc = datetime(2026-09-05T05:40:00Z);
+AppServiceHTTPLogs
+| where TimeGenerated >= StartUtc and TimeGenerated < EndUtc
+| where _SubscriptionId =~ TargetSubscriptionId
+| extend App = tolower(tostring(split(_ResourceId, '/')[-1]))
+| where App in ('app-portal-prod-ncus', 'app-hand-hygiene-prod-ncus',
+    'app-hhs-prod-ncus', 'app-audit-log-prod-ncus', 'app-labor-pool-prod-ncus',
+    'app-notification-service-prod-ncus', 'app-pmm-prod-ncus')
+| where ScStatus >= 400 and ScStatus < 500
+| extend PathClass = case(CsUriStem == '/', '/',
+    CsUriStem in ('/health', '/healthz', '/api/health', '/robots.txt', '/favicon.ico'), CsUriStem,
+    'Other path omitted')
+| extend CallerClass = case(CsUserAgent contains 'AlwaysOn', 'AlwaysOn',
+    CsUserAgent contains 'HealthCheck', 'HealthCheck',
+    CsUserAgent contains 'Azure-FrontDoor', 'Azure-FrontDoor', 'Other caller')
+| summarize Requests = count(), FirstSeenUtc = min(TimeGenerated),
+    LastSeenUtc = max(TimeGenerated) by App, ScStatus, CsMethod, PathClass, CallerClass
+| order by Requests desc
+| take 80

@@ -1,0 +1,10 @@
+{
+  "app": "app-PMM-prod-ncus",
+  "auth": {
+    "enabled": false,
+    "excludedPaths": null,
+    "requireAuthentication": null,
+    "unauthenticatedClientAction": null
+  },
+  "observedAtUtc": "2026-09-05T11:53:38.1963758Z"
+}

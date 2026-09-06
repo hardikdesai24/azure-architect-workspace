@@ -1,0 +1,529 @@
+{
+  "subscription": "dt-prd-app-oeqrq2jxadm36",
+  "startUtc": "2026-08-29T12:10:00Z",
+  "endUtc": "2026-09-05T12:10:00Z",
+  "observedAtUtc": "2026-09-05T12:21:44.269595Z",
+  "method": "Time average and nearest-rank P95 of populated five-minute MemoryPercentage averages; no instantaneous or application-level memory attribution.",
+  "plans": [
+    {
+      "app": "app-HHS-prod-ncus",
+      "plan": "asp-asp-hhs-prod-ncus-prod-ncus",
+      "appStateAtBaseline": "Running",
+      "samples": 2016,
+      "missingSamples": 0,
+      "mean5m": 76.29,
+      "p95of5m": 78.2,
+      "peak5m": 82.4,
+      "samplesAtLeast80": 5,
+      "samplesAtLeast85": 0,
+      "samplesAtLeast90": 0,
+      "longestAtLeast80Minutes": 5,
+      "longestAtLeast85Minutes": 0,
+      "rollingDays": [
+        {
+          "startUtc": "2026-08-29T12:10:00Z",
+          "samples": 288,
+          "mean": 76.9
+        },
+        {
+          "startUtc": "2026-08-30T12:10:00Z",
+          "samples": 288,
+          "mean": 76.44
+        },
+        {
+          "startUtc": "2026-08-31T12:10:00Z",
+          "samples": 288,
+          "mean": 77.01
+        },
+        {
+          "startUtc": "2026-09-01T12:10:00Z",
+          "samples": 288,
+          "mean": 76.11
+        },
+        {
+          "startUtc": "2026-09-02T12:10:00Z",
+          "samples": 288,
+          "mean": 75.47
+        },
+        {
+          "startUtc": "2026-09-03T12:10:00Z",
+          "samples": 288,
+          "mean": 76.02
+        },
+        {
+          "startUtc": "2026-09-04T12:10:00Z",
+          "samples": 288,
+          "mean": 76.08
+        }
+      ]
+    },
+    {
+      "app": "app-portal-prod-ncus",
+      "plan": "asp-portal-prod-ncus",
+      "appStateAtBaseline": "Running",
+      "samples": 2016,
+      "missingSamples": 0,
+      "mean5m": 76.98,
+      "p95of5m": 78.8,
+      "peak5m": 85.6,
+      "samplesAtLeast80": 9,
+      "samplesAtLeast85": 1,
+      "samplesAtLeast90": 0,
+      "longestAtLeast80Minutes": 5,
+      "longestAtLeast85Minutes": 5,
+      "rollingDays": [
+        {
+          "startUtc": "2026-08-29T12:10:00Z",
+          "samples": 288,
+          "mean": 76.96
+        },
+        {
+          "startUtc": "2026-08-30T12:10:00Z",
+          "samples": 288,
+          "mean": 77.27
+        },
+        {
+          "startUtc": "2026-08-31T12:10:00Z",
+          "samples": 288,
+          "mean": 77.41
+        },
+        {
+          "startUtc": "2026-09-01T12:10:00Z",
+          "samples": 288,
+          "mean": 76.98
+        },
+        {
+          "startUtc": "2026-09-02T12:10:00Z",
+          "samples": 288,
+          "mean": 76.66
+        },
+        {
+          "startUtc": "2026-09-03T12:10:00Z",
+          "samples": 288,
+          "mean": 76.87
+        },
+        {
+          "startUtc": "2026-09-04T12:10:00Z",
+          "samples": 288,
+          "mean": 76.73
+        }
+      ]
+    },
+    {
+      "app": "app-audit-log-prod-ncus",
+      "plan": "asp-audit-log-prod-ncus",
+      "appStateAtBaseline": "Running",
+      "samples": 2016,
+      "missingSamples": 0,
+      "mean5m": 76.78,
+      "p95of5m": 78.6,
+      "peak5m": 81.4,
+      "samplesAtLeast80": 12,
+      "samplesAtLeast85": 0,
+      "samplesAtLeast90": 0,
+      "longestAtLeast80Minutes": 10,
+      "longestAtLeast85Minutes": 0,
+      "rollingDays": [
+        {
+          "startUtc": "2026-08-29T12:10:00Z",
+          "samples": 288,
+          "mean": 77.07
+        },
+        {
+          "startUtc": "2026-08-30T12:10:00Z",
+          "samples": 288,
+          "mean": 76.98
+        },
+        {
+          "startUtc": "2026-08-31T12:10:00Z",
+          "samples": 288,
+          "mean": 77.35
+        },
+        {
+          "startUtc": "2026-09-01T12:10:00Z",
+          "samples": 288,
+          "mean": 76.68
+        },
+        {
+          "startUtc": "2026-09-02T12:10:00Z",
+          "samples": 288,
+          "mean": 76.43
+        },
+        {
+          "startUtc": "2026-09-03T12:10:00Z",
+          "samples": 288,
+          "mean": 76.41
+        },
+        {
+          "startUtc": "2026-09-04T12:10:00Z",
+          "samples": 288,
+          "mean": 76.51
+        }
+      ]
+    },
+    {
+      "app": "app-hand-hygiene-prod-ncus",
+      "plan": "asp-hand-hygiene-prod-ncus",
+      "appStateAtBaseline": "Running",
+      "samples": 2016,
+      "missingSamples": 0,
+      "mean5m": 75.46,
+      "p95of5m": 77.6,
+      "peak5m": 79.6,
+      "samplesAtLeast80": 0,
+      "samplesAtLeast85": 0,
+      "samplesAtLeast90": 0,
+      "longestAtLeast80Minutes": 0,
+      "longestAtLeast85Minutes": 0,
+      "rollingDays": [
+        {
+          "startUtc": "2026-08-29T12:10:00Z",
+          "samples": 288,
+          "mean": 75.58
+        },
+        {
+          "startUtc": "2026-08-30T12:10:00Z",
+          "samples": 288,
+          "mean": 75.6
+        },
+        {
+          "startUtc": "2026-08-31T12:10:00Z",
+          "samples": 288,
+          "mean": 76.32
+        },
+        {
+          "startUtc": "2026-09-01T12:10:00Z",
+          "samples": 288,
+          "mean": 75.66
+        },
+        {
+          "startUtc": "2026-09-02T12:10:00Z",
+          "samples": 288,
+          "mean": 74.91
+        },
+        {
+          "startUtc": "2026-09-03T12:10:00Z",
+          "samples": 288,
+          "mean": 75.14
+        },
+        {
+          "startUtc": "2026-09-04T12:10:00Z",
+          "samples": 288,
+          "mean": 74.98
+        }
+      ]
+    },
+    {
+      "app": "app-notification-service-prod-ncus",
+      "plan": "asp-notification-service-prod-ncus",
+      "appStateAtBaseline": "Running",
+      "samples": 2016,
+      "missingSamples": 0,
+      "mean5m": 75.05,
+      "p95of5m": 77.0,
+      "peak5m": 81.4,
+      "samplesAtLeast80": 1,
+      "samplesAtLeast85": 0,
+      "samplesAtLeast90": 0,
+      "longestAtLeast80Minutes": 5,
+      "longestAtLeast85Minutes": 0,
+      "rollingDays": [
+        {
+          "startUtc": "2026-08-29T12:10:00Z",
+          "samples": 288,
+          "mean": 75.23
+        },
+        {
+          "startUtc": "2026-08-30T12:10:00Z",
+          "samples": 288,
+          "mean": 75.85
+        },
+        {
+          "startUtc": "2026-08-31T12:10:00Z",
+          "samples": 288,
+          "mean": 75.72
+        },
+        {
+          "startUtc": "2026-09-01T12:10:00Z",
+          "samples": 288,
+          "mean": 74.92
+        },
+        {
+          "startUtc": "2026-09-02T12:10:00Z",
+          "samples": 288,
+          "mean": 74.94
+        },
+        {
+          "startUtc": "2026-09-03T12:10:00Z",
+          "samples": 288,
+          "mean": 74.4
+        },
+        {
+          "startUtc": "2026-09-04T12:10:00Z",
+          "samples": 288,
+          "mean": 74.33
+        }
+      ]
+    },
+    {
+      "app": "app-medicaid-prod-ncus",
+      "plan": "asp-medicaid-prod-ncus",
+      "appStateAtBaseline": "Stopped",
+      "samples": 2016,
+      "missingSamples": 0,
+      "mean5m": 73.4,
+      "p95of5m": 75.4,
+      "peak5m": 80.0,
+      "samplesAtLeast80": 1,
+      "samplesAtLeast85": 0,
+      "samplesAtLeast90": 0,
+      "longestAtLeast80Minutes": 5,
+      "longestAtLeast85Minutes": 0,
+      "rollingDays": [
+        {
+          "startUtc": "2026-08-29T12:10:00Z",
+          "samples": 288,
+          "mean": 73.28
+        },
+        {
+          "startUtc": "2026-08-30T12:10:00Z",
+          "samples": 288,
+          "mean": 73.78
+        },
+        {
+          "startUtc": "2026-08-31T12:10:00Z",
+          "samples": 288,
+          "mean": 74.3
+        },
+        {
+          "startUtc": "2026-09-01T12:10:00Z",
+          "samples": 288,
+          "mean": 73.62
+        },
+        {
+          "startUtc": "2026-09-02T12:10:00Z",
+          "samples": 288,
+          "mean": 72.95
+        },
+        {
+          "startUtc": "2026-09-03T12:10:00Z",
+          "samples": 288,
+          "mean": 73.04
+        },
+        {
+          "startUtc": "2026-09-04T12:10:00Z",
+          "samples": 288,
+          "mean": 72.83
+        }
+      ]
+    },
+    {
+      "app": "app-labor-pool-prod-ncus",
+      "plan": "asp-labor-pool-prod-ncus",
+      "appStateAtBaseline": "Running",
+      "samples": 2016,
+      "missingSamples": 0,
+      "mean5m": 74.83,
+      "p95of5m": 77.0,
+      "peak5m": 82.8,
+      "samplesAtLeast80": 3,
+      "samplesAtLeast85": 0,
+      "samplesAtLeast90": 0,
+      "longestAtLeast80Minutes": 5,
+      "longestAtLeast85Minutes": 0,
+      "rollingDays": [
+        {
+          "startUtc": "2026-08-29T12:10:00Z",
+          "samples": 288,
+          "mean": 75.48
+        },
+        {
+          "startUtc": "2026-08-30T12:10:00Z",
+          "samples": 288,
+          "mean": 75.26
+        },
+        {
+          "startUtc": "2026-08-31T12:10:00Z",
+          "samples": 288,
+          "mean": 75.87
+        },
+        {
+          "startUtc": "2026-09-01T12:10:00Z",
+          "samples": 288,
+          "mean": 74.77
+        },
+        {
+          "startUtc": "2026-09-02T12:10:00Z",
+          "samples": 288,
+          "mean": 74.38
+        },
+        {
+          "startUtc": "2026-09-03T12:10:00Z",
+          "samples": 288,
+          "mean": 74.18
+        },
+        {
+          "startUtc": "2026-09-04T12:10:00Z",
+          "samples": 288,
+          "mean": 73.88
+        }
+      ]
+    },
+    {
+      "app": "app-PMM-prod-ncus",
+      "plan": "asp-asp-pmm-prod-ncus-prod-ncus",
+      "appStateAtBaseline": "Running",
+      "samples": 2016,
+      "missingSamples": 0,
+      "mean5m": 73.8,
+      "p95of5m": 76.2,
+      "peak5m": 79.8,
+      "samplesAtLeast80": 0,
+      "samplesAtLeast85": 0,
+      "samplesAtLeast90": 0,
+      "longestAtLeast80Minutes": 0,
+      "longestAtLeast85Minutes": 0,
+      "rollingDays": [
+        {
+          "startUtc": "2026-08-29T12:10:00Z",
+          "samples": 288,
+          "mean": 74.6
+        },
+        {
+          "startUtc": "2026-08-30T12:10:00Z",
+          "samples": 288,
+          "mean": 74.45
+        },
+        {
+          "startUtc": "2026-08-31T12:10:00Z",
+          "samples": 288,
+          "mean": 74.79
+        },
+        {
+          "startUtc": "2026-09-01T12:10:00Z",
+          "samples": 288,
+          "mean": 74.11
+        },
+        {
+          "startUtc": "2026-09-02T12:10:00Z",
+          "samples": 288,
+          "mean": 73.46
+        },
+        {
+          "startUtc": "2026-09-03T12:10:00Z",
+          "samples": 288,
+          "mean": 72.82
+        },
+        {
+          "startUtc": "2026-09-04T12:10:00Z",
+          "samples": 288,
+          "mean": 72.4
+        }
+      ]
+    },
+    {
+      "app": "app-legacy-docs-prod-ncus",
+      "plan": "asp-legacy-docs-prod-ncus",
+      "appStateAtBaseline": "Stopped",
+      "samples": 2016,
+      "missingSamples": 0,
+      "mean5m": 72.15,
+      "p95of5m": 74.8,
+      "peak5m": 79.2,
+      "samplesAtLeast80": 0,
+      "samplesAtLeast85": 0,
+      "samplesAtLeast90": 0,
+      "longestAtLeast80Minutes": 0,
+      "longestAtLeast85Minutes": 0,
+      "rollingDays": [
+        {
+          "startUtc": "2026-08-29T12:10:00Z",
+          "samples": 288,
+          "mean": 73.0
+        },
+        {
+          "startUtc": "2026-08-30T12:10:00Z",
+          "samples": 288,
+          "mean": 73.0
+        },
+        {
+          "startUtc": "2026-08-31T12:10:00Z",
+          "samples": 288,
+          "mean": 73.55
+        },
+        {
+          "startUtc": "2026-09-01T12:10:00Z",
+          "samples": 288,
+          "mean": 72.26
+        },
+        {
+          "startUtc": "2026-09-02T12:10:00Z",
+          "samples": 288,
+          "mean": 71.12
+        },
+        {
+          "startUtc": "2026-09-03T12:10:00Z",
+          "samples": 288,
+          "mean": 71.57
+        },
+        {
+          "startUtc": "2026-09-04T12:10:00Z",
+          "samples": 288,
+          "mean": 70.59
+        }
+      ]
+    },
+    {
+      "app": "app-ora-prod-ncus",
+      "plan": "asp-ora-prod-ncus",
+      "appStateAtBaseline": "Stopped",
+      "samples": 2016,
+      "missingSamples": 0,
+      "mean5m": 72.29,
+      "p95of5m": 74.4,
+      "peak5m": 79.0,
+      "samplesAtLeast80": 0,
+      "samplesAtLeast85": 0,
+      "samplesAtLeast90": 0,
+      "longestAtLeast80Minutes": 0,
+      "longestAtLeast85Minutes": 0,
+      "rollingDays": [
+        {
+          "startUtc": "2026-08-29T12:10:00Z",
+          "samples": 288,
+          "mean": 72.56
+        },
+        {
+          "startUtc": "2026-08-30T12:10:00Z",
+          "samples": 288,
+          "mean": 72.98
+        },
+        {
+          "startUtc": "2026-08-31T12:10:00Z",
+          "samples": 288,
+          "mean": 73.04
+        },
+        {
+          "startUtc": "2026-09-01T12:10:00Z",
+          "samples": 288,
+          "mean": 72.26
+        },
+        {
+          "startUtc": "2026-09-02T12:10:00Z",
+          "samples": 288,
+          "mean": 71.7
+        },
+        {
+          "startUtc": "2026-09-03T12:10:00Z",
+          "samples": 288,
+          "mean": 71.28
+        },
+        {
+          "startUtc": "2026-09-04T12:10:00Z",
+          "samples": 288,
+          "mean": 72.18
+        }
+      ]
+    }
+  ]
+}

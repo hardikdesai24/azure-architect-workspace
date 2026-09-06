@@ -1,0 +1,72 @@
+[
+  {
+    "app": "app-hand-hygiene-prod-ncus",
+    "path": "/",
+    "method": "GET",
+    "statusCode": 403,
+    "authenticationChallengePresent": false,
+    "bodyRead": false,
+    "observedAtUtc": "2026-09-05T11:54:09.7290932Z",
+    "error": null
+  },
+  {
+    "app": "app-portal-prod-ncus",
+    "path": "/",
+    "method": "GET",
+    "statusCode": 403,
+    "authenticationChallengePresent": false,
+    "bodyRead": false,
+    "observedAtUtc": "2026-09-05T11:54:09.7279068Z",
+    "error": null
+  },
+  {
+    "app": "app-notification-service-prod-ncus",
+    "path": "/",
+    "method": "GET",
+    "statusCode": 403,
+    "authenticationChallengePresent": false,
+    "bodyRead": false,
+    "observedAtUtc": "2026-09-05T11:54:09.7287813Z",
+    "error": null
+  },
+  {
+    "app": "app-audit-log-prod-ncus",
+    "path": "/",
+    "method": "GET",
+    "statusCode": 403,
+    "authenticationChallengePresent": false,
+    "bodyRead": false,
+    "observedAtUtc": "2026-09-05T11:54:10.4165813Z",
+    "error": null
+  },
+  {
+    "app": "app-PMM-prod-ncus",
+    "path": "/",
+    "method": "GET",
+    "statusCode": 403,
+    "authenticationChallengePresent": false,
+    "bodyRead": false,
+    "observedAtUtc": "2026-09-05T11:54:10.4503669Z",
+    "error": null
+  },
+  {
+    "app": "app-labor-pool-prod-ncus",
+    "path": "/",
+    "method": "GET",
+    "statusCode": 403,
+    "authenticationChallengePresent": false,
+    "bodyRead": false,
+    "observedAtUtc": "2026-09-05T11:54:10.4611973Z",
+    "error": null
+  },
+  {
+    "app": "app-HHS-prod-ncus",
+    "path": "/",
+    "method": "GET",
+    "statusCode": 403,
+    "authenticationChallengePresent": false,
+    "bodyRead": false,
+    "observedAtUtc": "2026-09-05T11:54:11.1086545Z",
+    "error": null
+  }
+]

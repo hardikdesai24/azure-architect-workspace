@@ -1,0 +1,15 @@
+# Current state
+
+Latest completed read-only review: application performance in `dt-prd-app-oeqrq2jxadm36`, covering 2026-09-04 05:40 through 2026-09-05 05:40 UTC.
+
+The report and sanitized metric observations are in `Output/2026-09-05-111000-dt-prd-app-performance-24h*`. Coverage includes 10 web apps, one function app, one static web app and 12 App Service plans. Metric totals and timestamps were validated. No external configuration was changed; unrelated working-tree changes were preserved.
+
+Detailed HTTP log access was blocked by Conditional Access (AADSTS53003); p95/p99 and request causes remain unknown. See the report for observed 4xx traffic and plan memory utilization. No remediation has been authorized.
+
+The user subsequently requested a one-slide presentation. `Output/2026-09-05-132200-application-performance.pptx` summarizes the same reporting window with an editable metric table, confirmed findings and the telemetry limitation. It does not represent a fresh Azure query.
+
+Follow-up investigation at 2026-09-05 11:51–11:54 UTC confirmed Always On on all seven running apps and almost exactly one recurring 404/401 per five-minute interval in the original window. Always On root requests are the leading explanation, not confirmed request-level causality. HTTP logs actually route to central `mercyhealth-log-analytics`; a correctly scoped query there also failed with AADSTS53003. PMM built-in authentication is currently disabled. Direct root checks returned 403 and the apps have deny-by-default rules with APIM-labeled allow entries. See `Output/2026-09-05-172100-dt-prd-app-4xx-investigation.md` and the reusable aggregate query in `queries/kql/app-service-4xx-probe-diagnosis.kql`. No controls or applications were changed.
+
+Memory sizing follow-up completed at 2026-09-05 12:21:44 UTC. Ten plans each returned 2,016 complete five-minute memory averages for Aug 29 12:10 to Sep 5 12:10 UTC. Running-app plan means were 73.80–76.98%; all their P95 values were below 79%. Portal had the only bin at or above 85% (85.6%); no plan had three consecutive bins at or above 80%. Daily averages were stable or lower. Recommendation: retain B1 for current demand, investigate memory composition, and prepare a targeted Portal capacity option if sustained pressure, symptoms, or forecast growth justify it. B2 and P0v3 were listed as selectable for Portal at 12:19:14 UTC; pricing and other plans' SKU availability were not checked. See `Output/2026-09-05-app-service-memory-sizing-assessment.md` and its seven-day data/summary files. No resize or monitoring change was made or authorized.
+
+Repository state, 2026-09-06: this change commits the reports, summaries, handoff files and reusable query. The two bulk raw metric exports referenced above — `Output/2026-09-05-111000-dt-prd-app-performance-24h-data.json` and `Output/2026-09-05-app-service-memory-sizing-7d.json` — are gitignored and exist only on the originating machine, so a fresh clone will not contain them. Their `*-summary.json` companions hold the analyzable values. Nothing has been pushed.
