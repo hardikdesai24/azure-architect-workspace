@@ -1,0 +1,942 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="generator" content="Azure Monitor read-only query via Azure MCP">
+<style>body{margin:0;font:14px system-ui}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>TPA Production Board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+:root {
+  --ground: #f2f5f7;
+  --surface: #ffffff;
+  --surface-2: #e9eef1;
+  --ink: #12212c;
+  --ink-2: #4c5f6c;
+  --ink-3: #7d8f9b;
+  --line: #dce3e8;
+  --line-strong: #b9c6cf;
+
+  --series-a: #15769b;
+  --series-b: #b0670f;
+
+  --seq-1: #8ab7cc;
+  --seq-2: #649ab6;
+  --seq-3: #427e9d;
+  --seq-4: #266383;
+  --seq-5: #0d4869;
+
+  --ok: #2f6b4f;
+  --ok-bg: #e4efe9;
+  --warn: #b0670f;
+  --warn-bg: #f7ecdd;
+  --crit: #a03a44;
+  --crit-bg: #f8e6e7;
+  --info-bg: #e6eef2;
+
+  --font-display: "IBM Plex Sans Condensed", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground: #0e1720;
+    --surface: #16222d;
+    --surface-2: #1d2c38;
+    --ink: #e4ecf2;
+    --ink-2: #9dafbc;
+    --ink-3: #6d8290;
+    --line: #26343f;
+    --line-strong: #3a4b58;
+
+    --series-a: #38a0c0;
+    --series-b: #ad7c1e;
+
+    --seq-1: #3d5e6d;
+    --seq-2: #497691;
+    --seq-3: #5791ae;
+    --seq-4: #6aabc7;
+    --seq-5: #83cae4;
+
+    --ok: #5aa77f;
+    --ok-bg: #1b3129;
+    --warn: #d9a441;
+    --warn-bg: #2f2718;
+    --crit: #e0777d;
+    --crit-bg: #332023;
+    --info-bg: #1c2b36;
+  }
+}
+
+:root[data-theme="dark"] {
+  --ground: #0e1720;
+  --surface: #16222d;
+  --surface-2: #1d2c38;
+  --ink: #e4ecf2;
+  --ink-2: #9dafbc;
+  --ink-3: #6d8290;
+  --line: #26343f;
+  --line-strong: #3a4b58;
+
+  --series-a: #38a0c0;
+  --series-b: #ad7c1e;
+
+  --seq-1: #3d5e6d;
+  --seq-2: #497691;
+  --seq-3: #5791ae;
+  --seq-4: #6aabc7;
+  --seq-5: #83cae4;
+
+  --ok: #5aa77f;
+  --ok-bg: #1b3129;
+  --warn: #d9a441;
+  --warn-bg: #2f2718;
+  --crit: #e0777d;
+  --crit-bg: #332023;
+  --info-bg: #1c2b36;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+.wrap { max-width: 1180px; margin: 0 auto; padding: 0 24px 72px; }
+
+/* masthead */
+
+.masthead {
+  border-bottom: 2px solid var(--ink);
+  padding: 28px 0 14px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px 32px;
+}
+
+.masthead h1 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(28px, 4.4vw, 42px);
+  letter-spacing: -0.015em;
+  line-height: 1.02;
+  margin: 0;
+  text-wrap: balance;
+}
+
+.masthead .sub {
+  margin: 6px 0 0;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--ink-2);
+}
+
+.stamp {
+  text-align: right;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-3);
+  line-height: 1.7;
+  white-space: nowrap;
+}
+
+.stamp b { display: block; color: var(--ink); font-weight: 500; font-size: 12px; }
+
+/* kpi rail */
+
+.rail {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  border-bottom: 1px solid var(--line);
+}
+
+.kpi { padding: 20px 22px 20px 0; border-right: 1px solid var(--line); }
+.kpi:last-child { border-right: 0; }
+
+.kpi .k-label {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: 8px;
+}
+
+.kpi .k-val {
+  font-family: var(--font-mono);
+  font-size: 30px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.kpi .k-unit { font-size: 15px; color: var(--ink-2); font-weight: 400; }
+.kpi .k-note { margin-top: 7px; font-size: 11.5px; color: var(--ink-2); line-height: 1.45; }
+
+.k-val.is-ok { color: var(--ok); }
+.k-val.is-warn { color: var(--warn); }
+
+/* sections */
+
+section { padding-top: 44px; }
+
+.sec-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--line-strong);
+  padding-bottom: 9px;
+  margin-bottom: 20px;
+}
+
+.sec-head h2 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 20px;
+  margin: 0;
+}
+
+.sec-head .hint { font-size: 12px; color: var(--ink-2); max-width: 62ch; }
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  padding: 20px 22px;
+}
+
+.split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+
+@media (max-width: 900px) { .split { grid-template-columns: minmax(0, 1fr); } }
+
+.panel h3 {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  margin: 0 0 3px;
+}
+
+.panel .p-sub { font-size: 12px; color: var(--ink-3); margin: 0 0 16px; }
+
+.scroller { overflow-x: auto; }
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  align-items: center;
+  font-size: 11.5px;
+  color: var(--ink-2);
+  margin-top: 14px;
+}
+
+.legend .lg { display: flex; align-items: center; gap: 6px; }
+
+.swatch { width: 11px; height: 11px; border-radius: 2px; flex: none; }
+
+/* table */
+
+table { width: 100%; border-collapse: collapse; font-size: 12.5px; min-width: 820px; }
+
+thead th {
+  text-align: right;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.075em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  padding: 0 10px 9px;
+  border-bottom: 1px solid var(--line-strong);
+  white-space: nowrap;
+  vertical-align: bottom;
+}
+
+thead th:first-child { text-align: left; padding-left: 0; }
+
+tbody td {
+  padding: 11px 10px;
+  border-bottom: 1px solid var(--line);
+  text-align: right;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+tbody td:first-child {
+  text-align: left;
+  padding-left: 0;
+  font-family: var(--font-body);
+  white-space: normal;
+}
+
+tbody tr:last-child td { border-bottom: 0; }
+
+.r-name { font-weight: 600; font-size: 13px; }
+.r-meta { font-family: var(--font-mono); font-size: 10.5px; color: var(--ink-3); display: block; margin-top: 1px; }
+
+.tier-head td {
+  padding: 16px 10px 6px 0;
+  border-bottom: 1px solid var(--line-strong);
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  text-align: left;
+}
+
+.meter { display: inline-flex; align-items: center; gap: 7px; justify-content: flex-end; width: 100%; }
+
+.meter .bar {
+  width: 44px;
+  height: 5px;
+  background: var(--surface-2);
+  border-radius: 2px;
+  overflow: hidden;
+  flex: none;
+}
+
+.meter .bar span { display: block; height: 100%; border-radius: 2px; background: var(--series-a); }
+
+.dim { color: var(--ink-3); }
+
+.pill {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  padding: 2px 8px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+
+.pill.ok { background: var(--ok-bg); color: var(--ok); }
+.pill.warn { background: var(--warn-bg); color: var(--warn); }
+.pill.crit { background: var(--crit-bg); color: var(--crit); }
+.pill.info { background: var(--info-bg); color: var(--series-a); }
+
+/* findings */
+
+.findings { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+
+.find {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  padding: 16px 18px 17px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.find-top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+.find-rank {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.find h4 {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
+  text-wrap: balance;
+}
+
+.find p { margin: 0; font-size: 12.5px; color: var(--ink-2); line-height: 1.58; }
+
+.find p b {
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.find .act {
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--ink);
+  border-top: 1px dashed var(--line-strong);
+  padding-top: 9px;
+}
+
+.find .act b {
+  font-family: var(--font-body);
+  font-size: 10px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  display: block;
+  margin-bottom: 3px;
+  font-weight: 600;
+}
+
+/* evidence key + footer */
+
+.keybar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  align-items: center;
+  font-size: 11.5px;
+  color: var(--ink-2);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  padding: 12px 16px;
+  margin-bottom: 18px;
+}
+
+.keybar .kb-t {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+footer {
+  margin-top: 46px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  font-size: 11.5px;
+  color: var(--ink-3);
+  line-height: 1.7;
+}
+
+footer code { font-family: var(--font-mono); font-size: 11px; color: var(--ink-2); }
+
+footer b { color: var(--ink-2); font-weight: 600; }
+
+/* charts */
+
+svg { display: block; max-width: 100%; }
+svg text { font-family: var(--font-mono); fill: var(--ink-2); }
+
+.tip {
+  position: fixed;
+  z-index: 40;
+  pointer-events: none;
+  background: var(--ink);
+  color: var(--ground);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.5;
+  padding: 7px 10px;
+  border-radius: 3px;
+  opacity: 0;
+  transition: opacity .1s;
+  white-space: pre;
+  max-width: 280px;
+}
+
+.tip.on { opacity: 1; }
+.hit { cursor: crosshair; }
+
+:focus-visible { outline: 2px solid var(--series-a); outline-offset: 2px; }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <div>
+      <h1>TPA Production Board</h1>
+      <p class="sub">dt-prd-tpa-oeqrq2jxadm36 &nbsp;/&nbsp; rg-spoke-tpa-prd-imkltpplo5qyg &nbsp;/&nbsp; northcentralus</p>
+    </div>
+    <div class="stamp">
+      <b>01 Sep &ndash; 08 Sep 2026</b>
+      7 full days + 15h partial
+      <br>Azure Monitor, P1D grain, UTC
+      <br>2 web apps &middot; 1 plan &middot; 1 SQL database
+    </div>
+  </header>
+
+  <div class="rail">
+    <div class="kpi">
+      <div class="k-label">Plan CPU, 7d average</div>
+      <div class="k-val is-ok">&lt;0.1<span class="k-unit">%</span></div>
+      <div class="k-note">Platform reports 0.00%. Peak 6% on 4 Sep.</div>
+    </div>
+    <div class="kpi">
+      <div class="k-label">Plan memory, 7d average</div>
+      <div class="k-val is-ok">30.4<span class="k-unit">%</span></div>
+      <div class="k-note">Only metric above 2%. Drifting 29.6 to 31.2.</div>
+    </div>
+    <div class="kpi">
+      <div class="k-label">SQL DTU, 7d average</div>
+      <div class="k-val is-ok">0.10<span class="k-unit">%</span></div>
+      <div class="k-note">0.05 of the 50 DTU provisioned on S2</div>
+    </div>
+    <div class="kpi">
+      <div class="k-label">Requests answered 2xx</div>
+      <div class="k-val is-ok">99.92<span class="k-unit">%</span></div>
+      <div class="k-note">321,268 requests, 1 server error all week</div>
+    </div>
+  </div>
+
+  <section>
+    <div class="sec-head">
+      <h2>Average utilisation, both tiers on one scale</h2>
+      <p class="hint">Every bar is a 7-day mean of the percentage Azure reports natively. The tick marks the worst single peak in the window. One number clears 2%; everything else is idle.</p>
+    </div>
+    <div class="panel">
+      <h3>Average percent utilised, 0 to 100</h3>
+      <p class="p-sub">Linear scale. Values under 1% are drawn as a minimum-width stub so they stay visible; read the printed figure, not the bar length, below 1%.</p>
+      <div class="scroller"><div id="util"></div></div>
+      <div class="legend">
+        <div class="lg"><span class="swatch" style="background:var(--series-a)"></span> 7-day average</div>
+        <div class="lg"><span class="swatch" style="background:var(--ink-2);width:3px;height:13px;border-radius:1px"></span> Worst peak in window</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <h2>Load and latency</h2>
+      <p class="hint">Traffic is real and weekend-heavy, which fits a member-facing portal rather than a back-office system. Latency sits below the metric's own resolution except for two brief events on 4 September.</p>
+    </div>
+    <div class="split">
+      <div class="panel">
+        <h3>Daily requests</h3>
+        <p class="p-sub">Frontend and backend track each other within 5%.</p>
+        <div class="scroller"><div id="traffic"></div></div>
+        <div class="legend">
+          <div class="lg"><span class="swatch" style="background:var(--series-a)"></span> Frontend</div>
+          <div class="lg"><span class="swatch" style="background:var(--series-b)"></span> Backend</div>
+        </div>
+      </div>
+      <div class="panel">
+        <h3>Peak response time, 4 September</h3>
+        <p class="p-sub">Hourly maximum. Baseline elsewhere is 0.01 to 0.02s.</p>
+        <div class="scroller"><div id="rt"></div></div>
+        <div class="legend">
+          <div class="lg"><span class="swatch" style="background:var(--series-a)"></span> Frontend</div>
+          <div class="lg"><span class="swatch" style="background:var(--series-b)"></span> Backend</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <h2>Per-resource detail</h2>
+      <p class="hint">App CPU is the app process share of one core, derived from CpuTime. Everything else is reported by the platform as a percentage.</p>
+    </div>
+    <div class="panel">
+      <div class="scroller"><table id="tbl"><tbody></tbody></table></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <h2>Findings</h2>
+      <p class="hint">Ranked by what would matter first. Each carries an evidence class.</p>
+    </div>
+
+    <div class="keybar">
+      <span class="kb-t">Evidence key</span>
+      <span><span class="pill ok">Confirmed</span> directly observed in Azure Monitor, Resource Manager or the activity log</span>
+      <span><span class="pill info">Inferred</span> strongly implied by confirmed facts</span>
+      <span><span class="pill warn">Unknown</span> not verified in this pass</span>
+    </div>
+
+    <div class="findings">
+
+      <article class="find">
+        <div class="find-top"><span class="find-rank">01</span><span class="pill warn">Unknown</span><span class="pill crit">Monitoring</span></div>
+        <h4>Two response-time alerts may be watching a dead metric</h4>
+        <p><b>AverageResponseTime</b> returns 0.00 on both apps at every aggregation, while <b>HttpResponseTime</b> returns real values from the same window. These are Windows App Services, where the older metric is not populated. Rules <b>alert-response-time-frontend</b> and <b>alert-response-time-backend</b> exist but their metric was not read in this pass.</p>
+        <div class="act"><b>Verify next</b>Open both rules and confirm which metric they reference. Apply the same check to alert-cpu-time-frontend and alert-cpu-time-backend: CpuTime is absolute seconds, not a percentage, so a threshold written as if it were a percentage would also never fire.</div>
+      </article>
+
+      <article class="find">
+        <div class="find-top"><span class="find-rank">02</span><span class="pill ok">Confirmed</span><span class="pill warn">Cost</span></div>
+        <h4>The database is provisioned about a thousand times over</h4>
+        <p>db-config is <b>Standard S2, 50 DTU</b>, holding <b>41 MB</b> of a 250 GB ceiling. It ran at <b>0.10%</b> DTU average and <b>5%</b> peak, with data IO and log IO at a flat <b>0%</b>, workers at <b>1.05%</b> and about <b>2</b> concurrent sessions.</p>
+        <div class="act"><b>Recommendation</b>Review against Basic or a serverless General Purpose tier. Confirm the retention, backup and SLA requirements the current tier may have been chosen for before proposing the change.</div>
+      </article>
+
+      <article class="find">
+        <div class="find-top"><span class="find-rank">03</span><span class="pill info">Inferred</span><span class="pill info">Architecture</span></div>
+        <h4>The application barely touches this database</h4>
+        <p>The two apps served <b>321,268</b> requests over <b>239</b> successful database connections, roughly <b>1,344</b> requests per connection, against about 2 sessions. The name, the 41 MB footprint and the flat IO all point to a configuration store rather than the system of record. App Configuration and a storage account sit in the same resource group.</p>
+        <div class="act"><b>Verify next</b>Confirm where the TPA transactional data actually lives. If it is outside this subscription, this board covers only part of the workload's real dependency chain.</div>
+      </article>
+
+      <article class="find">
+        <div class="find-top"><span class="find-rank">04</span><span class="pill ok">Confirmed</span><span class="pill warn">Change</span></div>
+        <h4>The 14 August release raised memory about 4.6x</h4>
+        <p>Backend working set averaged <b>43 MB</b> before 14 Aug and <b>199 MB</b> after; frontend went <b>28</b> to <b>79 MB</b>. Within each cycle the backend climbs roughly <b>60 MB</b> over ten days then recycles, visible as drops on 18, 26 and 27 Aug. Plan memory average has drifted <b>29.6%</b> to <b>31.2%</b> across this window.</p>
+        <div class="act"><b>Recommendation</b>Nothing is at risk at 223 MB against a Premium worker, so treat this as a baseline to know rather than an incident. Worth confirming the step was expected from that release.</div>
+      </article>
+
+      <article class="find">
+        <div class="find-top"><span class="find-rank">05</span><span class="pill ok">Confirmed</span><span class="pill info">Latency</span></div>
+        <h4>Two separate blips on 4 September</h4>
+        <p>Backend peaked at <b>11.65s</b> in the 02:00 UTC hour and <b>1.19s</b> at 03:00, with database connections jumping to <b>50</b> in the 03:00 hour against a 0 to 4 norm. Separately the frontend touched <b>1.67s</b> at 05:00, which lines up with a site update recorded at 05:10 UTC and reads as a restart cold start.</p>
+        <div class="act"><b>Verify next</b>The 02:00 backend spike has no deployment behind it. Check Application Insights failures and dependencies for that hour before dismissing it as a one-off.</div>
+      </article>
+
+      <article class="find">
+        <div class="find-top"><span class="find-rank">06</span><span class="pill ok">Confirmed</span><span class="pill ok">Healthy</span></div>
+        <h4>Error and availability posture is clean</h4>
+        <p>One HTTP 5xx across <b>321,268</b> requests. Database availability <b>100%</b> every day, zero deadlocks, zero firewall blocks and one failed connection all week. HTTP queue length stayed at zero. A 404 burst on 5 Sep at 05:00 produced <b>222</b> 4xx in one hour, then stopped.</p>
+        <div class="act"><b>Note</b>The 5 Sep burst was 404 only, no 401 or 403, so it was not an auth failure. Requests doubled in that hour, consistent with a scan or a bad link rather than a fault.</div>
+      </article>
+
+    </div>
+  </section>
+
+  <footer>
+    <b>Scope.</b> Subscription dt-prd-tpa-oeqrq2jxadm36 (65d61542&hellip;1a03), resource group rg-spoke-tpa-prd-imkltpplo5qyg, northcentralus. Resources covered: app-tpa-prod-frontend-ncus, app-tpa-prod-backend-ncus, asp-tpa-prod-ncus, sql-prod-fwubq55usdsyk/db-config.
+    <br><b>Evidence.</b> Azure Monitor metrics via Azure MCP, namespaces <code>Microsoft.Web/sites</code>, <code>Microsoft.Web/serverFarms</code> and <code>Microsoft.Sql/servers/databases</code>; Resource Manager for SKU and inventory; activity log for the 4 Sep site update. Observed 08 Sep 2026, 14:59 UTC. P1D grain with PT1H and PT6H drill-down on 2, 4 and 5 Sep, plus a 30-day P1D memory series.
+    <br><b>Not verified in this pass.</b> Metric alert rule definitions, Application Insights traces and dependencies, Front Door and WAF telemetry, App Service Plan SKU size, and the location of the TPA transactional data store.
+    <br><b>External systems changed.</b> None. All queries were read-only.
+    <br><b>Caveats.</b> The 08 Sep bucket is partial and is excluded from 7-day totals. App CPU percent is derived from CpuTime against one core; the plan may hold more than one. Plan CPU average is reported as 0.00% by the platform and shown here as under 0.1%, which the CpuTime totals independently support. Findings and recommendations are analysis, not measurements.
+  </footer>
+
+</div>
+
+<div class="tip" id="tip" role="status" aria-live="polite"></div>
+
+<script>
+const DATA = {
+  days: ["01 Sep","02 Sep","03 Sep","04 Sep","05 Sep","06 Sep","07 Sep","08 Sep"],
+  util: [
+    {tier:"App tier",  label:"Plan CPU",        metric:"CpuPercentage",             avg:0.05,   peak:6,     note:"derived from CpuTime; platform reports 0.00"},
+    {tier:"App tier",  label:"Plan memory",     metric:"MemoryPercentage",          avg:30.41,  peak:40,    note:""},
+    {tier:"Database",  label:"DTU consumption", metric:"dtu_consumption_percent",   avg:0.099,  peak:5,     note:"of 50 DTU (Standard S2)"},
+    {tier:"Database",  label:"CPU",             metric:"cpu_percent",               avg:0.099,  peak:5,     note:""},
+    {tier:"Database",  label:"Workers",         metric:"workers_percent",           avg:1.05,   peak:2,     note:""},
+    {tier:"Database",  label:"Data IO",         metric:"physical_data_read_percent",avg:0.0,    peak:2,     note:""},
+    {tier:"Database",  label:"Log IO",          metric:"log_write_percent",         avg:0.0,    peak:0,     note:""},
+    {tier:"Database",  label:"Sessions",        metric:"sessions_percent",          avg:0.0,    peak:1,     note:"about 2 concurrent sessions"},
+    {tier:"Database",  label:"Data storage",    metric:"storage",                   avg:0.016,  peak:0.017, note:"41 MB of 250 GB"}
+  ],
+  traffic: {
+    frontend: [20091,20286,20484,23038,27884,27103,22646,13171],
+    backend:  [20013,20188,20280,23017,26704,26949,22585,13130]
+  },
+  rt4sep: {
+    frontend: [0.01,0.02,0.07,0.02,0.01,1.67,0.01,0.01,0.01,0.01,0.01,0.01,0.02,0.02,0.01,0.01,0.02,0.02,0.01,0.01,0.01,0.01,0.01,0.01],
+    backend:  [0.01,0.01,11.65,1.19,0.01,0.02,0.01,0.02,0.01,0.01,0.01,0.01,0.02,0.02,0.08,0.01,0.02,0.01,0.02,0.01,0.01,0.01,0.01,0.01]
+  },
+  rows: [
+    {tier:"App tier", name:"app-tpa-prod-frontend-ncus", meta:"Windows, PremiumV3, asp-tpa-prod-ncus",
+     req:161532, ok:99.860, e4:0.137, e5:0.0006, cpu:0.039, mem:"78 to 81 MB", rtPeak:1.67},
+    {tier:"App tier", name:"app-tpa-prod-backend-ncus",  meta:"Windows, PremiumV3, asp-tpa-prod-ncus",
+     req:159736, ok:99.981, e4:0.010, e5:0.0000, cpu:0.041, mem:"183 to 223 MB", rtPeak:11.65}
+  ],
+  planRow: {name:"asp-tpa-prod-ncus", meta:"PremiumV3, 2 apps bound", cpuAvg:0.05, cpuPk:6, memAvg:30.41, memPk:40, dqAvg:1.44, dqPk:16},
+  dbRow: {name:"sql-prod-fwubq55usdsyk/db-config", meta:"Standard S2, 50 DTU, 250 GB max",
+          dtuAvg:0.099, dtuPk:5, storAvg:0.016, conn:239, fail:1, sess:2.0, dead:0, avail:100}
+};
+
+const SVGNS = "http://www.w3.org/2000/svg";
+const el = (n, a = {}) => { const e = document.createElementNS(SVGNS, n); for (const k in a) e.setAttribute(k, a[k]); return e; };
+const fmt = n => n.toLocaleString("en-US");
+const pct = (v, d = 2) => v.toFixed(d) + "%";
+
+const tip = document.getElementById("tip");
+function bindTip(node, text) {
+  node.classList.add("hit");
+  const show = ev => {
+    tip.textContent = text;
+    tip.classList.add("on");
+    const r = tip.getBoundingClientRect();
+    let x = ev.clientX + 14, y = ev.clientY - r.height - 10;
+    if (x + r.width > window.innerWidth - 8) x = ev.clientX - r.width - 14;
+    if (y < 8) y = ev.clientY + 18;
+    tip.style.left = x + "px";
+    tip.style.top = y + "px";
+  };
+  node.addEventListener("mouseenter", show);
+  node.addEventListener("mousemove", show);
+  node.addEventListener("mouseleave", () => tip.classList.remove("on"));
+}
+
+/* 1. utilisation bullets */
+(function util() {
+  const rows = DATA.util;
+  const L = 196, R = 108, T = 30, RH = 34, BH = 11;
+  const W = 1000, H = T + rows.length * RH + 34;
+  const TW = W - L - R;
+  const x = p => L + (p / 100) * TW;
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, width: W, height: H, role: "img",
+    "aria-label": "Seven day average percent utilisation for App Service Plan CPU and memory and for seven SQL database metrics" });
+
+  [0, 20, 40, 60, 80, 100].forEach(p => {
+    svg.appendChild(el("line", { x1: x(p), y1: T - 8, x2: x(p), y2: T + rows.length * RH - 10,
+      stroke: "var(--line)", "stroke-width": 1 }));
+    const t = el("text", { x: x(p), y: T - 14, "font-size": 9.5, "text-anchor": "middle", fill: "var(--ink-3)" });
+    t.textContent = p + "%";
+    svg.appendChild(t);
+  });
+
+  let lastTier = null;
+  rows.forEach((r, i) => {
+    const y = T + i * RH;
+
+    if (r.tier !== lastTier) {
+      const tt = el("text", { x: 0, y: y + BH - 1, "font-size": 9.5, "font-weight": 600,
+        fill: "var(--ink-3)", "letter-spacing": "0.08em" });
+      tt.textContent = r.tier.toUpperCase();
+      svg.appendChild(tt);
+      if (i > 0) svg.appendChild(el("line", { x1: 0, y1: y - 10, x2: W - 4, y2: y - 10,
+        stroke: "var(--line)", "stroke-width": 1 }));
+      lastTier = r.tier;
+    }
+
+    const lbl = el("text", { x: L - 12, y: y + BH - 1, "font-size": 11, "text-anchor": "end", fill: "var(--ink-2)" });
+    lbl.textContent = r.label;
+    svg.appendChild(lbl);
+
+    svg.appendChild(el("rect", { x: L, y, width: TW, height: BH, rx: 2, fill: "var(--surface-2)" }));
+
+    const w = r.avg > 0 ? Math.max((r.avg / 100) * TW, 3) : 0;
+    if (w > 0) {
+      const bar = el("rect", { x: L, y, width: w, height: BH, rx: 2, fill: "var(--series-a)" });
+      bindTip(bar, `${r.metric}\n7d average ${pct(r.avg, 3)}   peak ${pct(r.peak, 3)}${r.note ? "\n" + r.note : ""}`);
+      svg.appendChild(bar);
+    }
+
+    if (r.peak > 0) {
+      const tick = el("rect", { x: x(r.peak) - 1.5, y: y - 3, width: 3, height: BH + 6, rx: 1, fill: "var(--ink-2)" });
+      bindTip(tick, `${r.metric}\nworst peak in window ${pct(r.peak, 3)}`);
+      svg.appendChild(tick);
+    }
+
+    const val = el("text", { x: W - R + 10, y: y + BH - 1, "font-size": 11.5, fill: "var(--ink)", "font-weight": 500 });
+    val.textContent = r.avg >= 1 ? r.avg.toFixed(1) + "%" : r.avg > 0 ? r.avg.toFixed(2) + "%" : "0.00%";
+    svg.appendChild(val);
+
+    const pk = el("text", { x: W - 4, y: y + BH - 1, "font-size": 10, "text-anchor": "end", fill: "var(--ink-3)" });
+    pk.textContent = "pk " + (r.peak >= 1 ? r.peak.toFixed(0) : r.peak.toFixed(2)) + "%";
+    svg.appendChild(pk);
+  });
+
+  const cap = el("text", { x: L, y: H - 8, "font-size": 10, fill: "var(--ink-3)" });
+  cap.textContent = "Only plan memory clears 2%. Every other measured dimension is effectively idle.";
+  svg.appendChild(cap);
+
+  document.getElementById("util").appendChild(svg);
+})();
+
+/* 2. daily traffic */
+(function traffic() {
+  const F = DATA.traffic.frontend, B = DATA.traffic.backend;
+  const L = 48, R = 16, T = 18, Bm = 30;
+  const W = 520, H = 235;
+  const PW = W - L - R, PH = H - T - Bm;
+  const max = 30000;
+  const n = F.length;
+  const gw = PW / n;
+  const y = v => T + PH - (v / max) * PH;
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, width: W, height: H, role: "img",
+    "aria-label": "Daily request counts for the frontend and backend apps across eight days" });
+
+  [0, 10000, 20000, 30000].forEach(v => {
+    svg.appendChild(el("line", { x1: L, y1: y(v), x2: L + PW, y2: y(v), stroke: "var(--line)", "stroke-width": 1 }));
+    const t = el("text", { x: L - 8, y: y(v) + 3.5, "font-size": 9.5, "text-anchor": "end", fill: "var(--ink-3)" });
+    t.textContent = v ? (v / 1000) + "k" : "0";
+    svg.appendChild(t);
+  });
+
+  const bw = (gw - 8) / 2;
+  DATA.days.forEach((d, i) => {
+    const partial = i === n - 1;
+    [[F[i], "var(--series-a)", "frontend", 0], [B[i], "var(--series-b)", "backend", 1]].forEach(([v, c, name, k]) => {
+      const bx = L + i * gw + 4 + k * bw;
+      const bh = Math.max((v / max) * PH, 2);
+      const rect = el("rect", { x: bx, y: T + PH - bh, width: bw - 2, height: bh, rx: 2, fill: c,
+        opacity: partial ? 0.45 : 1 });
+      bindTip(rect, `${name}\n${d}${partial ? " (partial day)" : ""}\n${fmt(v)} requests`);
+      svg.appendChild(rect);
+    });
+    const t = el("text", { x: L + i * gw + gw / 2, y: H - Bm + 16, "font-size": 9,
+      "text-anchor": "middle", fill: "var(--ink-3)" });
+    t.textContent = d.slice(0, 2);
+    svg.appendChild(t);
+  });
+
+  const note = el("text", { x: L, y: H - 4, "font-size": 9, fill: "var(--ink-3)" });
+  note.textContent = "08 Sep is a partial day (shown faded)";
+  svg.appendChild(note);
+
+  document.getElementById("traffic").appendChild(svg);
+})();
+
+/* 3. response time on 4 sep */
+(function rt() {
+  const S = [
+    { name: "frontend", v: DATA.rt4sep.frontend, c: "var(--series-a)" },
+    { name: "backend",  v: DATA.rt4sep.backend,  c: "var(--series-b)" }
+  ];
+  const L = 44, R = 16, T = 22, Bm = 30;
+  const W = 520, H = 235;
+  const PW = W - L - R, PH = H - T - Bm;
+  const max = 12;
+  const x = h => L + (h / 23) * PW;
+  const y = v => T + PH - (v / max) * PH;
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, width: W, height: H, role: "img",
+    "aria-label": "Hourly peak response time in seconds for both apps on 4 September" });
+
+  [0, 3, 6, 9, 12].forEach(v => {
+    svg.appendChild(el("line", { x1: L, y1: y(v), x2: L + PW, y2: y(v), stroke: "var(--line)", "stroke-width": 1 }));
+    const t = el("text", { x: L - 8, y: y(v) + 3.5, "font-size": 9.5, "text-anchor": "end", fill: "var(--ink-3)" });
+    t.textContent = v + "s";
+    svg.appendChild(t);
+  });
+
+  [0, 6, 12, 18, 23].forEach(h => {
+    const t = el("text", { x: x(h), y: H - Bm + 16, "font-size": 9, "text-anchor": "middle", fill: "var(--ink-3)" });
+    t.textContent = String(h).padStart(2, "0");
+    svg.appendChild(t);
+  });
+
+  S.forEach(s => {
+    const d = s.v.map((v, h) => `${h ? "L" : "M"}${x(h).toFixed(1)},${y(v).toFixed(1)}`).join(" ");
+    svg.appendChild(el("path", { d, fill: "none", stroke: s.c, "stroke-width": 2,
+      "stroke-linejoin": "round", "stroke-linecap": "round" }));
+    const ph = s.v.indexOf(Math.max(...s.v));
+    const dot = el("circle", { cx: x(ph), cy: y(s.v[ph]), r: 4.5, fill: s.c, stroke: "var(--surface)", "stroke-width": 2 });
+    bindTip(dot, `${s.name}\n4 Sep ${String(ph).padStart(2, "0")}:00 UTC   ${s.v[ph]}s`);
+    svg.appendChild(dot);
+    s.v.forEach((v, h) => {
+      const hit = el("rect", { x: x(h) - PW / 46, y: T, width: PW / 23, height: PH, fill: "transparent" });
+      bindTip(hit, `${s.name}\n4 Sep ${String(h).padStart(2, "0")}:00 UTC   ${v}s`);
+      svg.appendChild(hit);
+    });
+  });
+
+  const a1 = el("text", { x: x(2) + 8, y: y(11.65) + 4, "font-size": 10, fill: "var(--series-b)", "font-weight": 500 });
+  a1.textContent = "11.65s backend, 02:00";
+  svg.appendChild(a1);
+
+  const a2 = el("text", { x: x(5) + 8, y: y(1.67) - 6, "font-size": 10, fill: "var(--series-a)", "font-weight": 500 });
+  a2.textContent = "1.67s frontend, site update 05:10";
+  svg.appendChild(a2);
+
+  const note = el("text", { x: L, y: H - 4, "font-size": 9, fill: "var(--ink-3)" });
+  note.textContent = "hour of day, UTC";
+  svg.appendChild(note);
+
+  document.getElementById("rt").appendChild(svg);
+})();
+
+/* 4. table */
+(function table() {
+  const tb = document.querySelector("#tbl tbody");
+
+  const head = cols => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = cols.map((c, i) =>
+      `<th style="${i ? "" : "text-align:left;padding-left:0"}">${c}</th>`).join("");
+    const thead = document.createElement("thead");
+    thead.appendChild(tr);
+    return thead;
+  };
+
+  const tier = label => {
+    const tr = document.createElement("tr");
+    tr.className = "tier-head";
+    tr.innerHTML = `<td colspan="8">${label}</td>`;
+    return tr;
+  };
+
+  const meter = (v, scale) => {
+    const w = v > 0 ? Math.max(v * scale, 2) : 0;
+    return `<span class="meter"><span class="bar"><span style="width:${Math.min(w, 100)}%"></span></span>${v < 1 ? v.toFixed(3) : v.toFixed(1)}%</span>`;
+  };
+
+  // --- app tier ---
+  tb.parentNode.insertBefore(head(
+    ["Web app", "7d requests", "2xx %", "4xx %", "5xx %", "App CPU % of a core", "Working set", "Peak resp"]), tb);
+  tb.appendChild(tier("App tier"));
+
+  DATA.rows.forEach(r => {
+    const tr = document.createElement("tr");
+    tr.innerHTML =
+      `<td><span class="r-name">${r.name}</span><span class="r-meta">${r.meta}</span></td>` +
+      `<td>${fmt(r.req)}</td>` +
+      `<td><span class="pill ok">${r.ok.toFixed(2)}%</span></td>` +
+      `<td>${r.e4.toFixed(3)}%</td>` +
+      `<td>${r.e5.toFixed(4)}%</td>` +
+      `<td>${meter(r.cpu, 100)}</td>` +
+      `<td class="dim">${r.mem}</td>` +
+      `<td>${r.rtPeak.toFixed(2)}s</td>`;
+    tb.appendChild(tr);
+  });
+
+  const p = DATA.planRow;
+  const ptr = document.createElement("tr");
+  ptr.innerHTML =
+    `<td><span class="r-name">${p.name}</span><span class="r-meta">${p.meta}</span></td>` +
+    `<td colspan="3" class="dim" style="text-align:left;font-family:var(--font-body)">Hosting plan, both apps bound</td>` +
+    `<td class="dim">CPU</td>` +
+    `<td>${meter(p.cpuAvg, 1)}</td>` +
+    `<td class="dim">memory ${p.memAvg.toFixed(1)}%</td>` +
+    `<td class="dim">pk ${p.memPk}%</td>`;
+  tb.appendChild(ptr);
+
+  // --- database tier ---
+  tb.appendChild(tier("Database tier"));
+  const d = DATA.dbRow;
+  const dtr = document.createElement("tr");
+  dtr.innerHTML =
+    `<td><span class="r-name">${d.name}</span><span class="r-meta">${d.meta}</span></td>` +
+    `<td colspan="2" class="dim" style="text-align:left;font-family:var(--font-body)">${fmt(d.conn)} connections, ${d.fail} failed</td>` +
+    `<td class="dim">DTU</td>` +
+    `<td>${meter(d.dtuAvg, 1)}</td>` +
+    `<td class="dim">storage ${d.storAvg.toFixed(3)}%</td>` +
+    `<td class="dim">${d.sess.toFixed(1)} sessions</td>` +
+    `<td><span class="pill ok">${d.avail}% avail</span></td>`;
+  tb.appendChild(dtr);
+
+  const dtr2 = document.createElement("tr");
+  dtr2.innerHTML =
+    `<td class="dim" style="font-size:11.5px">Deadlocks ${d.dead} &middot; firewall blocks 0 &middot; data IO 0.00% &middot; log IO 0.00% &middot; workers 1.05%</td>` +
+    `<td colspan="7" class="dim" style="text-align:right;font-family:var(--font-body);font-weight:400">` +
+    `${fmt(321268)} app requests served over ${d.conn} database connections &middot; about ${Math.round(321268 / d.conn).toLocaleString("en-US")} requests per connection</td>`;
+  tb.appendChild(dtr2);
+})();
+</script>
+
+</body>
+</html>
