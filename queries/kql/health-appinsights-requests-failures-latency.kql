@@ -3,15 +3,26 @@
 //            and latency overview for routine app health checks.
 // Scope:     Workspace-based Application Insights, or classic AI queried via
 //            its LAW-backed tables (AppRequests).
-// Required:  AppRequests table.
+// Required:  AppRequests rows.
 // Output:    Per-cloud-role aggregates: request count, failure count/rate,
 //            p50/p95 duration. No URLs with query strings, no user identities.
 // Time:      Default ago(24h). Narrow to ago(1h) during incidents.
 // Notes:     Requires App Insights resource (or diagnostic) feeding AppRequests.
+//            search * + $table avoids naming AppRequests as a table identifier
+//            when that table is missing from the connected editor schema.
 // =============================================================================
 
 let Lookback = ago(24h);
-AppRequests
+let AppRequestsSchema = datatable(
+    TimeGenerated: datetime,
+    Success: bool,
+    DurationMs: real,
+    AppRoleName: string,
+    ResultCode: string
+)[];
+union kind=outer
+    AppRequestsSchema,
+    (search * | where $table == "AppRequests")
 | where TimeGenerated >= Lookback
 | summarize
     Requests = count(),

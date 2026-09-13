@@ -3,15 +3,31 @@
 //            for change and incident triage.
 // Scope:     Log Analytics workspace with Activity Log diagnostic settings
 //            (subscription or management-group diagnostic to LAW).
-// Required:  AzureActivity table.
+// Required:  AzureActivity rows (Log Analytics table for exported Activity Logs).
 // Output:    Aggregate failure counts by operation, resource group, caller type,
 //            and status — no caller UPN/IP/message bodies.
 // Time:      Default ago(24h). Use ago(7d) for weekly health reviews.
 // Notes:     "No result" may mean no failures OR Activity Log not exported.
+//            search * + $table avoids naming AzureActivity as a table
+//            identifier (KS204/KS205 when that table is missing from the
+//            connected editor schema). The datatable stub supplies columns
+//            for analysis. search * is broader than a direct table scan.
 // =============================================================================
 
 let Lookback = ago(24h);
-AzureActivity
+let AzureActivitySchema = datatable(
+    TimeGenerated: datetime,
+    ActivityStatusValue: string,
+    ActivityStatus: string,
+    Level: string,
+    Caller: string,
+    OperationNameValue: string,
+    ResourceGroup: string,
+    ResourceProviderValue: string
+)[];
+union kind=outer
+    AzureActivitySchema,
+    (search * | where $table == "AzureActivity")
 | where TimeGenerated >= Lookback
 | where ActivityStatusValue =~ "Failed"
     or ActivityStatus =~ "Failed"

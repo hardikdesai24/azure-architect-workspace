@@ -3,16 +3,29 @@
 //            that still use the legacy multi-service diagnostics table.
 // Scope:     Log Analytics workspace receiving AzureDiagnostics via resource
 //            diagnostic settings (legacy / non-resource-specific tables).
-// Required:  AzureDiagnostics. Prefer resource-specific tables when available;
-//            this query is for mixed/legacy estates.
+// Required:  AzureDiagnostics rows. Prefer resource-specific tables when
+//            available; this query is for mixed/legacy estates.
 // Output:    Error counts by ResourceProvider, Category, Resource, ResultType.
 // Time:      Default ago(24h).
 // Notes:     Projects ResourceId leaf name only. Omits Message, Properties,
 //            and caller fields that can contain sensitive data.
+//            search * + $table avoids naming AzureDiagnostics as a table
+//            identifier when that table is missing from the connected editor schema.
 // =============================================================================
 
 let Lookback = ago(24h);
-AzureDiagnostics
+let AzureDiagnosticsSchema = datatable(
+    TimeGenerated: datetime,
+    Level: string,
+    ResultType: string,
+    ResultSignature: string,
+    ResourceId: string,
+    ResourceProvider: string,
+    Category: string
+)[];
+union kind=outer
+    AzureDiagnosticsSchema,
+    (search * | where $table == "AzureDiagnostics")
 | where TimeGenerated >= Lookback
 | where Level in ("Error", "Critical", "error", "critical")
     or ResultType in ("Failed", "Error", "Failure")

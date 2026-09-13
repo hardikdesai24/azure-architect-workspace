@@ -2,15 +2,25 @@
 // Purpose:   Summarize application exceptions without exposing full exception
 //            messages or stack traces.
 // Scope:     Workspace-based Application Insights (AppExceptions table).
-// Required:  AppExceptions.
+// Required:  AppExceptions rows.
 // Output:    Counts by app role, exception type, and problem id; first/last seen.
 // Time:      Default ago(24h). Use ago(7d) for trend reviews.
 // Notes:     OuterMessage / Details intentionally omitted (may contain PII or
 //            secrets). Drill into the portal with ProblemId when needed.
+//            search * + $table avoids naming AppExceptions as a table identifier
+//            when that table is missing from the connected editor schema.
 // =============================================================================
 
 let Lookback = ago(24h);
-AppExceptions
+let AppExceptionsSchema = datatable(
+    TimeGenerated: datetime,
+    AppRoleName: string,
+    ExceptionType: string,
+    ProblemId: string
+)[];
+union kind=outer
+    AppExceptionsSchema,
+    (search * | where $table == "AppExceptions")
 | where TimeGenerated >= Lookback
 | summarize
     ExceptionCount = count(),

@@ -2,17 +2,28 @@
 // Purpose:   Summarize Azure Monitor alerts that fired recently (count by
 //            severity, monitor service, and alert state).
 // Scope:     Log Analytics workspace that receives alert records.
-// Required:  Alert table (common schema). Some workspaces also have
+// Required:  Alert rows (common schema). Some workspaces also have
 //            AlertsManagement — see alternate block commented below.
 //            Alerts must be routed to LAW (action rule / diagnostic export).
 // Output:    Aggregate counts by Severity, MonitorService, AlertState, AlertRule.
 // Time:      Default ago(24h). Change Lookback for weekly reviews (ago(7d)).
 // Notes:     Aggregates only — no alert payloads, identities, or deep links
 //            with sensitive context.
+//            search * + $table avoids naming Alert as a table identifier
+//            when that table is missing from the connected editor schema.
 // =============================================================================
 
 let Lookback = ago(24h);
-Alert
+let AlertSchema = datatable(
+    TimeGenerated: datetime,
+    AlertSeverity: string,
+    MonitorService: string,
+    AlertState: string,
+    AlertName: string
+)[];
+union kind=outer
+    AlertSchema,
+    (search * | where $table == "Alert")
 | where TimeGenerated >= Lookback
 | summarize
     AlertCount = count(),
@@ -28,7 +39,15 @@ Alert
 
 // Alternate if your workspace uses AlertsManagement instead of Alert:
 // let Lookback = ago(24h);
-// AlertsManagement
+// let AlertsManagementSchema = datatable(
+//     TimeGenerated: datetime,
+//     Severity: string,
+//     MonitorCondition: string,
+//     AlertRule: string
+// )[];
+// union kind=outer
+//     AlertsManagementSchema,
+//     (search * | where $table == "AlertsManagement")
 // | where TimeGenerated >= Lookback
 // | summarize
 //     AlertCount = count(),

@@ -2,17 +2,30 @@
 // Purpose:   List recent Azure Service Health / Resource Health–related Activity
 //            Log signals for incident correlation during routine checks.
 // Scope:     Log Analytics workspace with Activity Log export enabled.
-// Required:  AzureActivity. Category values typically include ServiceHealth
+// Required:  AzureActivity rows. Category values typically include ServiceHealth
 //            and/or ResourceHealth when those signals are exported.
 // Output:    Counts by category, operation, status, and resource group.
 //            No caller identities or message properties.
 // Time:      Default ago(7d) (Service Health events are often sparse).
 // Notes:     Not a substitute for the Service Health blade; complements it when
 //            Activity Log is centralized in LAW.
+//            search * + $table avoids naming AzureActivity as a table identifier
+//            when that table is missing from the connected editor schema.
 // =============================================================================
 
 let Lookback = ago(7d);
-AzureActivity
+let AzureActivitySchema = datatable(
+    TimeGenerated: datetime,
+    CategoryValue: string,
+    Category: string,
+    _ResourceId: string,
+    OperationNameValue: string,
+    ActivityStatusValue: string,
+    ResourceGroup: string
+)[];
+union kind=outer
+    AzureActivitySchema,
+    (search * | where $table == "AzureActivity")
 | where TimeGenerated >= Lookback
 | where CategoryValue in ("ServiceHealth", "ResourceHealth", "Alert")
     or Category in ("ServiceHealth", "ResourceHealth", "Alert")

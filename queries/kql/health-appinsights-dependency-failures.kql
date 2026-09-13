@@ -2,15 +2,28 @@
 // Purpose:   Detect failing outbound dependencies (HTTP, SQL, Redis, etc.) from
 //            Application Insights dependency telemetry.
 // Scope:     Workspace-based Application Insights (AppDependencies table).
-// Required:  AppDependencies. Apps must emit dependency telemetry.
+// Required:  AppDependencies rows. Apps must emit dependency telemetry.
 // Output:    Failure counts and rates by app role, dependency type, and target
 //            host/name only — no full URLs, payloads, or connection strings.
 // Time:      Default ago(24h).
 // Notes:     Target is truncated to hostname-like token when possible.
+//            search * + $table avoids naming AppDependencies as a table
+//            identifier when that table is missing from the connected editor schema.
 // =============================================================================
 
 let Lookback = ago(24h);
-AppDependencies
+let AppDependenciesSchema = datatable(
+    TimeGenerated: datetime,
+    Success: bool,
+    Target: string,
+    DurationMs: real,
+    AppRoleName: string,
+    DependencyType: string,
+    ResultCode: string
+)[];
+union kind=outer
+    AppDependenciesSchema,
+    (search * | where $table == "AppDependencies")
 | where TimeGenerated >= Lookback
 | where Success == false
 | extend TargetSafe = tostring(split(tostring(Target), "/")[0])

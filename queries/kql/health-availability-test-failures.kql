@@ -3,15 +3,27 @@
 //            standard/custom availability) tests.
 // Scope:     Workspace-based Application Insights with availability tests
 //            configured and sending AppAvailabilityResults.
-// Required:  AppAvailabilityResults table.
+// Required:  AppAvailabilityResults rows.
 // Output:    Failure counts by test name, location, and result; success rate
 //            context via total samples. No raw response bodies.
 // Time:      Default ago(24h). Use ago(7d) for weekly SLO-style reviews.
 // Notes:     Empty results usually mean no availability tests or data not in LAW.
+//            search * + $table avoids naming AppAvailabilityResults as a table
+//            identifier when that table is missing from the connected editor schema.
 // =============================================================================
 
 let Lookback = ago(24h);
-AppAvailabilityResults
+let AppAvailabilityResultsSchema = datatable(
+    TimeGenerated: datetime,
+    Success: bool,
+    DurationMs: real,
+    Name: string,
+    Location: string,
+    Result: string
+)[];
+union kind=outer
+    AppAvailabilityResultsSchema,
+    (search * | where $table == "AppAvailabilityResults")
 | where TimeGenerated >= Lookback
 | summarize
     Samples = count(),

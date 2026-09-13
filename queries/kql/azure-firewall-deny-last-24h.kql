@@ -11,15 +11,38 @@
 //           without the Action filter if that is what you are looking for.
 //           The legacy AzureDiagnostics categories are DISABLED on this firewall - do not use them.
 // Output:   One row per denied connection/request, newest first.
-// Notes:    - `isfuzzy=true` keeps the union working if a table has never received data.
+// Notes:    - search * + $table avoids naming AZFW* tables (KS204/KS205 when they are
+//             missing from the connected editor schema). The stub supplies columns.
 //           - AZFWApplicationRule has no DestinationIp; AZFWNetworkRule has no Fqdn/WebCategory.
 //           - Empty Policy/Rule fields on a deny mean no rule matched (default deny).
 // Run:      az monitor log-analytics query -w <workspaceCustomerId> --analytics-query "<this file>" -o json
 //           (On Windows run this from bash, not PowerShell: az.cmd mangles multi-line arguments
 //            and silently drops filters.)
 
-union isfuzzy=true withsource=LogTable
-    AZFWNetworkRule, AZFWApplicationRule, AZFWNatRule, AZFWThreatIntel
+let AzFwDenySchema = datatable(
+    TimeGenerated: datetime,
+    LogTable: string,
+    Action: string,
+    ActionReason: string,
+    Protocol: string,
+    SourceIp: string,
+    SourcePort: string,
+    DestinationIp: string,
+    DestinationPort: string,
+    Fqdn: string,
+    TargetUrl: string,
+    WebCategory: string,
+    Policy: string,
+    RuleCollectionGroup: string,
+    RuleCollection: string,
+    Rule: string,
+    _ResourceId: string
+)[];
+union kind=outer
+    AzFwDenySchema,
+    (search *
+        | where $table in ("AZFWNetworkRule", "AZFWApplicationRule", "AZFWNatRule", "AZFWThreatIntel")
+        | extend LogTable = $table)
 | where TimeGenerated >= ago(24h)
 | where Action == "Deny"
 | project
