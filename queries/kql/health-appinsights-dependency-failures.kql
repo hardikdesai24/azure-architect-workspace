@@ -1,0 +1,28 @@
+// =============================================================================
+// Purpose:   Detect failing outbound dependencies (HTTP, SQL, Redis, etc.) from
+//            Application Insights dependency telemetry.
+// Scope:     Workspace-based Application Insights (AppDependencies table).
+// Required:  AppDependencies. Apps must emit dependency telemetry.
+// Output:    Failure counts and rates by app role, dependency type, and target
+//            host/name only — no full URLs, payloads, or connection strings.
+// Time:      Default ago(24h).
+// Notes:     Target is truncated to hostname-like token when possible.
+// =============================================================================
+
+let Lookback = ago(24h);
+AppDependencies
+| where TimeGenerated >= Lookback
+| where Success == false
+| extend TargetSafe = tostring(split(tostring(Target), "/")[0])
+| summarize
+    Failures = count(),
+    FirstSeen = min(TimeGenerated),
+    LastSeen = max(TimeGenerated),
+    DurationMs_p95 = round(percentile(DurationMs, 95), 1)
+    by
+    AppRoleName = tostring(AppRoleName),
+    DependencyType = tostring(DependencyType),
+    TargetSafe,
+    ResultCode = tostring(ResultCode)
+| order by Failures desc
+| take 100

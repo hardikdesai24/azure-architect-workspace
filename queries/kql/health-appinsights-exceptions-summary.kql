@@ -1,0 +1,24 @@
+// =============================================================================
+// Purpose:   Summarize application exceptions without exposing full exception
+//            messages or stack traces.
+// Scope:     Workspace-based Application Insights (AppExceptions table).
+// Required:  AppExceptions.
+// Output:    Counts by app role, exception type, and problem id; first/last seen.
+// Time:      Default ago(24h). Use ago(7d) for trend reviews.
+// Notes:     OuterMessage / Details intentionally omitted (may contain PII or
+//            secrets). Drill into the portal with ProblemId when needed.
+// =============================================================================
+
+let Lookback = ago(24h);
+AppExceptions
+| where TimeGenerated >= Lookback
+| summarize
+    ExceptionCount = count(),
+    FirstSeen = min(TimeGenerated),
+    LastSeen = max(TimeGenerated)
+    by
+    AppRoleName = tostring(AppRoleName),
+    ExceptionType = tostring(ExceptionType),
+    ProblemId = tostring(ProblemId)
+| order by ExceptionCount desc
+| take 100

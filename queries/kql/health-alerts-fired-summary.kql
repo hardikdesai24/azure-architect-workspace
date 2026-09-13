@@ -1,0 +1,42 @@
+// =============================================================================
+// Purpose:   Summarize Azure Monitor alerts that fired recently (count by
+//            severity, monitor service, and alert state).
+// Scope:     Log Analytics workspace that receives alert records.
+// Required:  Alert table (common schema). Some workspaces also have
+//            AlertsManagement — see alternate block commented below.
+//            Alerts must be routed to LAW (action rule / diagnostic export).
+// Output:    Aggregate counts by Severity, MonitorService, AlertState, AlertRule.
+// Time:      Default ago(24h). Change Lookback for weekly reviews (ago(7d)).
+// Notes:     Aggregates only — no alert payloads, identities, or deep links
+//            with sensitive context.
+// =============================================================================
+
+let Lookback = ago(24h);
+Alert
+| where TimeGenerated >= Lookback
+| summarize
+    AlertCount = count(),
+    FirstSeen = min(TimeGenerated),
+    LastSeen = max(TimeGenerated)
+    by
+    Severity = tostring(AlertSeverity),
+    MonitorService = tostring(MonitorService),
+    AlertState = tostring(AlertState),
+    AlertRule = tostring(AlertName)
+| order by AlertCount desc
+| take 100
+
+// Alternate if your workspace uses AlertsManagement instead of Alert:
+// let Lookback = ago(24h);
+// AlertsManagement
+// | where TimeGenerated >= Lookback
+// | summarize
+//     AlertCount = count(),
+//     FirstSeen = min(TimeGenerated),
+//     LastSeen = max(TimeGenerated)
+//     by
+//     Severity = tostring(Severity),
+//     MonitorCondition = tostring(MonitorCondition),
+//     AlertRule = tostring(AlertRule)
+// | order by AlertCount desc
+// | take 100

@@ -1,0 +1,35 @@
+// =============================================================================
+// Purpose:   Surface recent failed Azure control-plane (Activity Log) operations
+//            for change and incident triage.
+// Scope:     Log Analytics workspace with Activity Log diagnostic settings
+//            (subscription or management-group diagnostic to LAW).
+// Required:  AzureActivity table.
+// Output:    Aggregate failure counts by operation, resource group, caller type,
+//            and status — no caller UPN/IP/message bodies.
+// Time:      Default ago(24h). Use ago(7d) for weekly health reviews.
+// Notes:     "No result" may mean no failures OR Activity Log not exported.
+// =============================================================================
+
+let Lookback = ago(24h);
+AzureActivity
+| where TimeGenerated >= Lookback
+| where ActivityStatusValue =~ "Failed"
+    or ActivityStatus =~ "Failed"
+    or Level =~ "Error"
+| extend CallerType = case(
+    isempty(Caller), "Unknown",
+    Caller startswith "Microsoft.", "Azure platform",
+    Caller matches regex @"^[0-9a-fA-F-]{36}$", "Service principal / object id",
+    "User or other principal (identity omitted)")
+| summarize
+    FailureCount = count(),
+    FirstSeen = min(TimeGenerated),
+    LastSeen = max(TimeGenerated)
+    by
+    OperationNameValue,
+    ResourceGroup,
+    ResourceProviderValue,
+    ActivityStatusValue,
+    CallerType
+| order by FailureCount desc
+| take 100

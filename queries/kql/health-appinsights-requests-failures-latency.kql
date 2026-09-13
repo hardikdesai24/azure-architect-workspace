@@ -1,0 +1,28 @@
+// =============================================================================
+// Purpose:   App Insights / workspace-based App Insights request failure rate
+//            and latency overview for routine app health checks.
+// Scope:     Workspace-based Application Insights, or classic AI queried via
+//            its LAW-backed tables (AppRequests).
+// Required:  AppRequests table.
+// Output:    Per-cloud-role aggregates: request count, failure count/rate,
+//            p50/p95 duration. No URLs with query strings, no user identities.
+// Time:      Default ago(24h). Narrow to ago(1h) during incidents.
+// Notes:     Requires App Insights resource (or diagnostic) feeding AppRequests.
+// =============================================================================
+
+let Lookback = ago(24h);
+AppRequests
+| where TimeGenerated >= Lookback
+| summarize
+    Requests = count(),
+    Failures = countif(Success == false),
+    FailureRate = round(100.0 * countif(Success == false) / count(), 2),
+    DurationMs_p50 = round(percentile(DurationMs, 50), 1),
+    DurationMs_p95 = round(percentile(DurationMs, 95), 1),
+    AvgDurationMs = round(avg(DurationMs), 1)
+    by
+    AppRoleName = tostring(AppRoleName),
+    ResultCode = tostring(ResultCode)
+| where Requests >= 5
+| order by Failures desc, FailureRate desc
+| take 100

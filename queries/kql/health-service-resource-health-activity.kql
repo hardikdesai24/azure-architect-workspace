@@ -1,0 +1,31 @@
+// =============================================================================
+// Purpose:   List recent Azure Service Health / Resource Health–related Activity
+//            Log signals for incident correlation during routine checks.
+// Scope:     Log Analytics workspace with Activity Log export enabled.
+// Required:  AzureActivity. Category values typically include ServiceHealth
+//            and/or ResourceHealth when those signals are exported.
+// Output:    Counts by category, operation, status, and resource group.
+//            No caller identities or message properties.
+// Time:      Default ago(7d) (Service Health events are often sparse).
+// Notes:     Not a substitute for the Service Health blade; complements it when
+//            Activity Log is centralized in LAW.
+// =============================================================================
+
+let Lookback = ago(7d);
+AzureActivity
+| where TimeGenerated >= Lookback
+| where CategoryValue in ("ServiceHealth", "ResourceHealth", "Alert")
+    or Category in ("ServiceHealth", "ResourceHealth", "Alert")
+| extend ResourceName = tostring(split(tostring(_ResourceId), "/")[-1])
+| summarize
+    EventCount = count(),
+    FirstSeen = min(TimeGenerated),
+    LastSeen = max(TimeGenerated)
+    by
+    CategoryValue = tostring(CategoryValue),
+    OperationNameValue = tostring(OperationNameValue),
+    ActivityStatusValue = tostring(ActivityStatusValue),
+    ResourceGroup = tostring(ResourceGroup),
+    ResourceName
+| order by LastSeen desc
+| take 100

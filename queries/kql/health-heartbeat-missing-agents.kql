@@ -1,0 +1,21 @@
+// =============================================================================
+// Purpose:   Find computers/agents whose Heartbeat has gone stale (likely down,
+//            agent stopped, or connectivity lost).
+// Scope:     Any Log Analytics workspace that receives AMA/MMA heartbeats.
+// Required:  Heartbeat table (Azure Monitor Agent or Log Analytics agent).
+// Output:    One row per Computer with last heartbeat age and ResourceId.
+// Time:      Default lookback ago(24h) for presence; flag if last beat > ago(15m).
+//            Adjust StaleThreshold and Lookback as needed.
+// Notes:     Does not return IPs, usernames, or message payloads.
+// =============================================================================
+
+let Lookback = ago(24h);
+let StaleThreshold = ago(15m);
+Heartbeat
+| where TimeGenerated >= Lookback
+| summarize LastHeartbeat = max(TimeGenerated) by Computer, ResourceId, Category
+| where LastHeartbeat < StaleThreshold
+| extend MinutesSinceLastHeartbeat = datetime_diff('minute', now(), LastHeartbeat)
+| project Computer, ResourceId, Category, LastHeartbeat, MinutesSinceLastHeartbeat
+| order by MinutesSinceLastHeartbeat desc
+| take 200

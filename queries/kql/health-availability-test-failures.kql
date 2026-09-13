@@ -1,0 +1,29 @@
+// =============================================================================
+// Purpose:   Summarize failed Application Insights availability (URL ping /
+//            standard/custom availability) tests.
+// Scope:     Workspace-based Application Insights with availability tests
+//            configured and sending AppAvailabilityResults.
+// Required:  AppAvailabilityResults table.
+// Output:    Failure counts by test name, location, and result; success rate
+//            context via total samples. No raw response bodies.
+// Time:      Default ago(24h). Use ago(7d) for weekly SLO-style reviews.
+// Notes:     Empty results usually mean no availability tests or data not in LAW.
+// =============================================================================
+
+let Lookback = ago(24h);
+AppAvailabilityResults
+| where TimeGenerated >= Lookback
+| summarize
+    Samples = count(),
+    Failures = countif(Success == false),
+    FailureRate = round(100.0 * countif(Success == false) / count(), 2),
+    DurationMs_p95 = round(percentile(DurationMs, 95), 1),
+    FirstSeen = min(TimeGenerated),
+    LastSeen = max(TimeGenerated)
+    by
+    TestName = tostring(Name),
+    Location = tostring(Location),
+    Result = tostring(Result)
+| where Failures > 0 or FailureRate > 0
+| order by Failures desc, FailureRate desc
+| take 100

@@ -1,0 +1,32 @@
+// =============================================================================
+// Purpose:   Generic AzureDiagnostics error/failure rollup across resources
+//            that still use the legacy multi-service diagnostics table.
+// Scope:     Log Analytics workspace receiving AzureDiagnostics via resource
+//            diagnostic settings (legacy / non-resource-specific tables).
+// Required:  AzureDiagnostics. Prefer resource-specific tables when available;
+//            this query is for mixed/legacy estates.
+// Output:    Error counts by ResourceProvider, Category, Resource, ResultType.
+// Time:      Default ago(24h).
+// Notes:     Projects ResourceId leaf name only. Omits Message, Properties,
+//            and caller fields that can contain sensitive data.
+// =============================================================================
+
+let Lookback = ago(24h);
+AzureDiagnostics
+| where TimeGenerated >= Lookback
+| where Level in ("Error", "Critical", "error", "critical")
+    or ResultType in ("Failed", "Error", "Failure")
+    or ResultSignature =~ "Failed"
+| extend ResourceName = tostring(split(ResourceId, "/")[-1])
+| summarize
+    EventCount = count(),
+    FirstSeen = min(TimeGenerated),
+    LastSeen = max(TimeGenerated)
+    by
+    ResourceProvider = tostring(ResourceProvider),
+    Category = tostring(Category),
+    ResourceName,
+    ResultType = tostring(ResultType),
+    Level = tostring(Level)
+| order by EventCount desc
+| take 100
